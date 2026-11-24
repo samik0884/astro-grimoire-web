@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Astrology Web App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/style.css?v=818">
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Marck+Script&display=swap');
+                 /* 🚨 АБСОЛЮТНЫЙ ЗАПРЕТ КУРСИВА ДЛЯ СВИТКА — ЧИТАТЬ ПЕРВЫМ! */
+        .scroll-inner-text, 
+        .scroll-inner-text div, 
+        .scroll-inner-text p,
+        .astro-influence-card p,
+        .scroll-inner-text b,
+        .scroll-inner-text strong {
+            font-family: 'Philosopher', sans-serif !important;
+            font-style: normal !important;
+            font-size: 15px !important;
+            line-height: 1.6 !important;
+            color: #f3e8ff !important;
+            text-align: left !important;
+        }
+        .scroll-inner-text b, 
+        .scroll-inner-text strong {
+            color: #ffe066 !important;
+            font-weight: bold !important;
+        }
+        /* Мягкие стили и цветовая палитра !important;*/
+        :root {
+            --bg-color: #121019;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-gold: #e2c275;
+            --accent-purple: #a78bfa;
+            --text-primary: #f3e8ff;
+            --text-secondary: #94a3b8;
+            --btn-gradient: linear-gradient(135deg, rgba(167, 139, 250, 0.18) 0%, rgba(244, 114, 182, 0.12) 100%);
+            --btn-border: rgba(167, 139, 250, 0.3);
+        }
+        body {
+            background-color: var(--bg-color);
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+        }
+        /* Расширенное правило, которое увеличит вообще ВСЕ элементы и кнопки */
+        *, button, select, input, a, span, p, div, .sub-tab-btn, .taro-btn, .nav-label { 
+            font-family: 'Philosopher', sans-serif !important; 
+            font-size: 15px !important;
+            line-height: 1.5 !important; 
+        }
+        h1, h2, h3, .card-name, .taro-card-name {
+            font-family: 'Cinzel Decorative', serif !important;
+            font-weight: 700;
+            text-transform: none;
+            font-size: 19px !important; /* Чётко задаём крупный размер для главных заголовков */
+            color: #ffe066 !important;
+            text-shadow: 0 0 10px rgba(234, 179, 8, 0.5) !important;
+        }
+        /* Навигационные подвкладки */
+        .sub-tab-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 17px;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+        }
+        .sub-tab-btn.active {
+            background: var(--btn-gradient);
+            border: 1px solid var(--btn-border);
+            color: var(--text-primary);
+            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.15);
+        }
+        /* Кнопки оракула/таро */
+        .taro-btn {
+            background: var(--btn-gradient);
+            border: 1px solid var(--btn-border);
+            border-radius: 16px;
+            color: var(--text-primary);
+            padding: 14px 18px;
+            font-size: 10.5pt;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .taro-btn:active {
+            transform: scale(0.98);
+        }
+        /* Описание инструментов */
+        .tool-description-card {
+            background: rgba(226, 194, 117, 0.04);
+            border-left: 3px solid var(--accent-gold);
+            border-radius: 0 12px 12px 0;
+            padding: 14px 16px;
+            margin-top: 20px;
+            color: #cbd5e1;
+            font-size: 9pt;
+        }
+        .tool-description-card b {
+            color: var(--accent-gold);
+        }
+        /* Знаки зодиака */
+        .zodiac-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            transition: all 0.2s ease;
+        }
+        .zodiac-card:hover, .zodiac-card:active {
+            border-color: var(--accent-purple);
+            background: rgba(167, 139, 250, 0.1);
+        }
+        .result-content, .interpretation, #interpretation {
+            font-family: 'Marck Script', cursive !important;
+            font-size: 18px !important;
+            line-height: 1.6 !important;
+            color: #f3e8ff !important;
+        }
+                /* 👑 ЦАРСТВЕННЫЙ PHILOSOPHER ДЛЯ НАШИХ СВИТКОВ */
+        #sheet-text, 
+        #sheet-text div, 
+        #sheet-text p, 
+        #sheet-text span,
+        .scroll-inner-text,
+        .astro-influence-card,
+        .astro-influence-card p {
+            font-family: 'Philosopher', sans-serif !important;
+            font-style: normal !important;
+            font-size: 15px !important;
+            line-height: 1.6 !important;
+            color: #f3e8ff !important;
+            text-align: left !important;
+        }
+        #sheet-text b, #sheet-text strong,
+        .scroll-inner-text b, .scroll-inner-text strong {
+            color: #ffe066 !important;
+            font-weight: bold !important;
+        }
+        .oracle-flat-screen { transform: none !important; perspective: none !important; overflow: visible !important; }
+ /* Вертикальная сетка золотой рамки */
+.flex-cover-container {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    padding: 32px 16px !important;
+    perspective: 1000px !important; /* Включаем 3D-пространство для рамки */
+}
+.cover-top-block {
+    text-align: center !important;
+    width: 100% !important;
+}
+.book-title-single-line {
+    font-family: 'Cinzel Decorative', serif !important;
+    font-weight: 700 !important;
+    font-size: 16.5px !important;
+    color: #ffe066 !important;
+    text-shadow: 0 0 10px rgba(234, 179, 8, 0.4) !important;
+    margin: 0 0 4px 0 !important;
+    white-space: nowrap !important;
+}
+.cover-top-block .book-subtitle {
+    margin: 0 0 6px 0 !important;
+    font-size: 12.5px !important;
+    color: #94a3b8 !important;
+    opacity: 0.8;
+}
+.cosmic-divider {
+    color: rgba(226, 194, 117, 0.25) !important;
+    font-size: 11px !important;
+    letter-spacing: 3px;
+}
+/* Центрирование кольцевого оверлея */
+.cover-center-block-map {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+}
+.cover-transit-wheel-container {
+    width: 100% !important;
+    max-width: 290px !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    overflow: hidden !important;
+    transform-style: preserve-3d !important; /* Разрешаем слоям внутри быть трехмерными */
+    transition: background 0.8s ease-in-out, border-color 0.8s ease-in-out !important;
+}
+/* Слой 1: Графика колец (парит чуть сзади) */
+#cover-transit-svg {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    z-index: 1 !important;
+    transform: translateZ(10px) !important; /* Выносим вперед на 10px */
+    transition: transform 0.1s ease-out !important; /* Плавный отклик гироскопа */
+}
+/* Слой 2: Текст совета дня (парит перед кольцами) */
+.cover-central-advice-box {
+    position: absolute !important;
+    z-index: 2 !important;
+    width: 115px !important;
+    height: 115px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    border-radius: 50% !important;
+    box-sizing: border-box !important;
+    padding: 8px !important;
+    transform: translateZ(35px) !important; /* Выносим далеко вперед на 35px для эффекта глубины! */
+    transition: transform 0.1s ease-out !important;
+}
+.central-advice-label {
+    color: #e2c275 !important;
+    font-size: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 3px !important;
+    opacity: 0.6;
+}
+.central-advice-text {
+    font-family: 'Philosopher', sans-serif !important;
+    font-style: italic !important;
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+    color: #f3e8ff !important;
+    margin: 0 !important;
+    text-shadow: 0 0 4px rgba(243, 232, 255, 0.4) !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.cover-bottom-block {
+    text-align: center !important;
+    cursor: pointer !important;
+    width: 100% !important;
+}
+.tap-to-open {
+    font-size: 13px !important;
+    color: #a78bfa !important;
+    opacity: 0.8;
+    animation: pulseAdviceGlow 2s infinite alternate;
+}
+    </style>
+</head>
+<body>
+      <!-- Стартовый экран: Закрытая Книга (Обложка) -->
+<div id="book-cover" class="book-cover-screen">
+    <div class="grimoire-cover-design">
+        <div class="gold-frame flex-cover-container">
+            <!-- ВЕРХНЯЯ ЧАСТЬ: Название Гримуара в один ряд -->
+            <div class="cover-top-block">
+                <h1 class="book-title-single-line">Книга Теней и Звезд</h1>
+                <p class="book-subtitle">Твой личный навигатор по звёздам и судьбе</p>
+                <div class="cosmic-divider">✦ 🪐 ✦</div>
+            </div>
+                        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ: Кольца Транзита + Совет дня в самом сердце -->
+            <div class="cover-center-block-map" onclick="window.handleGrimoireCoverOpen()" style="cursor: pointer;">
+                <div class="cover-transit-wheel-container">
+                    <!-- Слой 1: Холст под графику колец планет из наталки -->
+                    <div id="cover-transit-svg" style="width: 100%; height: 100%; position: absolute; z-index: 1;"></div>
+                    <!-- Слой 2: Текст совета дня ровно внутри центрального круга радикса -->
+                    <div class="cover-central-advice-box">
+                        <span class="central-advice-label">Транзит</span>
+                        <p id="cover-dynamic-advice" class="central-advice-text">
+                            Считываю знамение...
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- НИЖНЯЯ ЧАСТЬ: Мерцающий тап для входа + Согласие в самом низу -->
+            <div class="cover-bottom-block" onclick="window.handleGrimoireCoverOpen()">
+                <div class="tap-to-open" style="font-size: 12.5px !important; white-space: nowrap;">✧ Коснитесь знамения, чтобы открыть ✧</div>
+                <div id="cover-consent-wrap" onclick="event.stopPropagation()" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; padding: 6px 12px; border-radius: 10px; border: 1px solid rgba(226, 194, 117, 0.22); background: rgba(13, 10, 20, 0.65); transition: all 0.25s ease;">
+                    <input type="checkbox" id="cover-consent-checkbox" onchange="window.toggleGrimoireConsent(this.checked)" style="width: 16px; height: 16px; accent-color: #e2c275; cursor: pointer; margin: 0; flex-shrink: 0;">
+                    <label for="cover-consent-checkbox" style="color: #94a3b8; font-size: 11px !important; line-height: 1.25 !important; text-align: left; cursor: pointer; margin: 0;">
+                        Согласен с <span onclick="event.preventDefault(); event.stopPropagation(); window.openGrimoireTermsModal();" style="color: #e2c275; font-size: 11px !important; text-decoration: underline;">Условиями и Политикой данных</span>
+                    </label>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+</div>
+    <!-- ОСНОВНОЙ КОНТЕНТ (4 ГЛАВНЫХ ЭКРАНА) -->
+    <main class="app-content">
+        <!-- ================= 0. МОЙ ДЕНЬ (ГЛАВНЫЙ АВТОХАБ) ================= -->
+        <section id="screen-my-day" class="screen-content active">
+            <div id="my-day-core">
+                <p style="text-align: center; color: #a78bfa; font-style: italic; padding: 20px;">
+                    Считываю твои натальные нити... Заполни профиль, чтобы Гримуар развернул свиток суток автоматически.
+                </p>
+            </div>
+        </section>
+        <section id="screen-daily" class="screen-content">
+            <!-- Верхние подвкладки -->
+            <div class="sub-tab-wrapper">
+                <nav class="sub-tab-nav">
+                    <button class="sub-tab-btn active" data-subtab="daily-horoscope">Западный Гороскоп</button>
+                    <button class="sub-tab-btn" data-subtab="eastern-grid">Восточный Гороскоп</button>
+                    <button class="sub-tab-btn" data-subtab="moon">Лунный день</button>                    
+                    <button class="sub-tab-btn" data-subtab="daily-hours">Астрологические часы</button>
+                    <button class="sub-tab-btn" data-subtab="biorhythms">Биоритмы</button>
+                    <button class="sub-tab-btn" data-subtab="daily-advice">Совет дня</button>
+                </nav>
+            </div>
+                                              <!-- 1.1 Гороскоп -->
+            <div id="daily-horoscope" class="sub-tab-content active">
+                <div class="tool-description-card">
+                    <div class="tool-desc-content">
+                        <b>📅✨ Западный Гороскоп</b> — Выберите ваш знак зодиака для просмотра актуального астрологического прогноза на сегодня
+                    </div>
+                </div>
+                <div class="zodiac-grid" id="zodiac-grid">
+                <div class="zodiac-card" data-sign="aries"><img src="/static/images/zodiac/aries.webp" alt="Овен" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="taurus"><img src="/static/images/zodiac/taurus.webp" alt="Телец" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="gemini"><img src="/static/images/zodiac/gemini.webp" alt="Близнецы" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="cancer"><img src="/static/images/zodiac/cancer.webp" alt="Рак" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="leo"><img src="/static/images/zodiac/leo.webp" alt="Лев" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="virgo"><img src="/static/images/zodiac/virgo.webp" alt="Дева" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="libra"><img src="/static/images/zodiac/libra.webp" alt="Весы" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="scorpio"><img src="/static/images/zodiac/scorpio.webp" alt="Скорпион" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="sagittarius"><img src="/static/images/zodiac/sagittarius.webp" alt="Стрелец" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="capricorn"><img src="/static/images/zodiac/capricorn.webp" alt="Козерог" class="zodiac-icon"></div>
+                <div class="zodiac-card" data-sign="aquarius"><img src="/static/images/zodiac/aquarius.webp" alt="Водолей" class="zodiac-icon"></div>
+               <div class="zodiac-card" data-sign="pisces"><img src="/static/images/zodiac/pisces.webp" alt="Рыбы" class="zodiac-icon"></div>
+             </div>                
+            <div id="horoscope-result" class="result-box hidden"></div>
+            </div>
+<!-- ================= 1.2 ВОСТОЧНЫЙ ГОРОСКОП (БА ЦЗЫ) ================= -->
+<div id="eastern-grid" class="sub-tab-content hidden">
+    <div class="tool-description-card">
+        <div class="tool-desc-content">
+            <b>🧧 Восточный Оракул Суток</b> — Нажмите на тотем вашего года рождения для расчета индивидуального прогноза по системе Ба Цзы и альманаху Тун Шу
+        </div>
+    </div>
+    <!-- Вшиваем инлайн-метод onclick, который запустит форму в обход глобальных кликов -->
+    <div class="zodiac-grid" id="eastern-animal-grid">
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(0, 'Крыса')"><img src="/static/images/zodiac/rat.webp" alt="Крыса" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(1, 'Бык')"><img src="/static/images/zodiac/ox.webp" alt="Бык" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(2, 'Тигр')"><img src="/static/images/zodiac/tiger.webp" alt="Тигр" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(3, 'Кролик')"><img src="/static/images/zodiac/rabbit.webp" alt="Кролик" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(4, 'Дракон')"><img src="/static/images/zodiac/dragon.webp" alt="Дракон" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(5, 'Змея')"><img src="/static/images/zodiac/snake.webp" alt="Змея" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(6, 'Лошадь')"><img src="/static/images/zodiac/horse.webp" alt="Лошадь" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(7, 'Коза')"><img src="/static/images/zodiac/goat.webp" alt="Коза" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(8, 'Обезьяна')"><img src="/static/images/zodiac/monkey.webp" alt="Обезьяна" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(9, 'Петух')"><img src="/static/images/zodiac/rooster.webp" alt="Петух" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(10, 'Собака')"><img src="/static/images/zodiac/dog.webp" alt="Собака" class="zodiac-icon"></div>
+        <div class="zodiac-card bazi-animal-card" onclick="openEasternSetup(11, 'Свинья')"><img src="/static/images/zodiac/pig.webp" alt="Свинья" class="zodiac-icon"></div>
+    </div>
+    <!-- Скрытая фиолетовая форма настроек, которая появится строго под карточками -->
+    <!-- index.html — Заменяем тег начала формы eastern-transformer-box на этот центрированный вариант -->
+<div id="eastern-transformer-box" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.82); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px; box-sizing: border-box;">
+    <!-- Внутреннее тело священного окна настроек Ба Цзы -->
+    <!-- ПОЛНОСТЬЮ ЗАМЕНИ СОДЕРЖИМОЕ ВНУТРИ ВТОРОГО ДИВА (Тела окна) В #eastern-transformer-box -->
+<div style="background: #161224; color: #fff; padding: 25px; border-radius: 20px; max-width: 360px; width: 100%; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid rgba(226, 194, 117, 0.3); font-family: 'Philosopher', sans-serif; box-sizing: border-box;">
+    <!-- Крестик закрытия окна -->
+    <span onclick="document.getElementById('eastern-transformer-box').classList.add('hidden');" style="position: absolute; top: 12px; right: 16px; font-size: 28px; cursor: pointer; color: #a0a5c0; user-select: none;">&times;</span>
+    <h3 id="eastern-transformer-title" style="text-align: center; margin-top: 5px; margin-bottom: 20px; color: #e2c275; font-size: 18px; display: block; width: 100%;">🧧 Настройка Оракула Тотема</h3>
+    <input type="hidden" id="eastern-hidden-id">
+    <!-- Поле: Год рождения -->
+    <div style="display: block !important; width: 100% !important; clear: both !important; margin-bottom: 14px !important; float: none !important;">
+        <label style="color: #a0a5c0; font-size: 13px; display: block !important; margin-bottom: 6px; text-align: left;">Год твоего рождения:</label>
+        <input type="number" id="eastern-birth-year" min="1930" max="2030" placeholder="Например: 1990" value="1990" style="display: block !important; width: 100% !important; height: 42px !important; padding: 10px !important; background: #0d0a14 !important; color: #fff !important; border: 1px solid rgba(226, 194, 117, 0.2) !important; border-radius: 12px !important; outline: none !important; box-sizing: border-box !important;">
+    </div>
+    <!-- Поле: Выбор пола -->
+    <div style="display: block !important; width: 100% !important; clear: both !important; margin-bottom: 14px !important; float: none !important;">
+        <label style="color: #a0a5c0; font-size: 13px; display: block !important; margin-bottom: 6px; text-align: left;">Твой пол:</label>
+        <select id="eastern-gender-select" style="display: block !important; width: 100% !important; height: 42px !important; padding: 0 36px 0 16px !important; background: #0d0a14 !important; color: #fff !important; border: 1px solid rgba(226, 194, 117, 0.2) !important; border-radius: 12px !important; outline: none !important; cursor: pointer !important; box-sizing: border-box !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;">
+            <option value="woman">Женщина ♀️</option>
+            <option value="man">Мужчина ♂️</option>
+        </select>
+    </div>
+    <!-- Поле: Целевая дата -->
+    <div style="display: block !important; width: 100% !important; clear: both !important; margin-bottom: 24px !important; float: none !important;">
+        <label style="color: #a0a5c0; font-size: 13px; display: block !important; margin-bottom: 6px; text-align: left;">Целевая дата прогноза:</label>
+        <input type="date" id="eastern-date-input" style="display: block !important; width: 100% !important; height: 42px !important; padding: 10px !important; background: #0d0a14 !important; color: #fff !important; border: 1px solid rgba(226, 194, 117, 0.2) !important; border-radius: 12px !important; color-scheme: dark !important; outline: none !important; box-sizing: border-box !important;">
+    </div>
+    <!-- Кнопка действия -->
+    <button type="button" class="main-gold-btn" onclick="executeGrimoireEasternCalculation()" style="display: flex !important; width: 100% !important; height: 46px !important; margin-top: 10px !important; clear: both !important;">
+        ✦ Активировать Восточный Оракул ✦
+    </button>
+</div>
+</div> <!-- 🔥 Тег закрытия внешней маски оверлея -->
+</div>
+                                           <!-- 1.2 Лунный календарь -->
+            <div id="moon" class="sub-tab-content">
+                <div class="tool-description-card">
+                    <div class="tool-desc-content">
+                        <b>🌖Лунный день</b> — анализ фаз и ритмов Луны на выбранную дату. Помогает определить благоприятное время для бытовых дел, начинаний и отдыха.<span class="info-btn" onclick="openMagicScroll('moon-guide')">ⓘ</span>
+                    </div>
+                </div>
+                                                <form id="moon-form">
+                                        <!-- Ряд 1: Целевая дата (Делаем подпись изящной) -->
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label for="moon-date" style="color: #94a3b8 !important; font-size: 14px !important; font-weight: normal !important; display: block; margin-bottom: 6px; text-transform: none !important; letter-spacing: 0.3px;">Выберите целевую дату:</label>
+                        <input type="date" id="moon-date" required style="width: 100%; height: 42px; padding: 0 12px; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.25); border-radius: 12px; outline: none; font-size: 14px;">
+                    </div>
+                    <!-- Ряд 2: Выбор пола -->
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label for="moon-forecast-gender" style="color: #94a3b8 !important; font-size: 14px !important; font-weight: normal !important; display: block; margin-bottom: 6px; text-transform: none !important; letter-spacing: 0.3px;">Укажите ваш пол:</label>
+                        <select id="moon-forecast-gender" style="width: 100%; height: 42px; padding: 0 12px; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.25); border-radius: 24px; outline: none; font-size: 14px; cursor: pointer;">
+                            <option value="woman">Женщина ♀️</option>
+                            <option value="man">Мужчина ♂️</option>
+                        </select>
+                    </div>
+                    <!-- Ряд 3: Город -->
+                    <div class="form-group city-autocomplete-wrapper" style="margin-bottom: 22px; position: relative;">
+                        <label for="moon-city-input" style="color: #94a3b8 !important; font-size: 14px !important; font-weight: normal !important; display: block; margin-bottom: 6px; text-transform: none !important; letter-spacing: 0.3px;">Ваше местоположение (необязательно):</label>
+                        <input type="text" class="city-input" id="moon-city-input" placeholder="Начните вводить город для точного времени суток..." autocomplete="off" style="width: 100%; height: 42px; padding: 0 12px; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.25); border-radius: 12px; outline: none; font-size: 14px;">
+                        <div class="city-dropdown hidden" id="moon-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:150px; overflow-y:auto; z-index:10001; margin-top:4px;"></div>
+                        <input type="hidden" id="moon-lat" value="">
+                        <input type="hidden" id="moon-lon" value="">
+                    </div>
+                    <!-- Наша монументальная золотая 3D-кнопка действия -->
+                    <button type="submit" class="main-gold-btn" style="margin-top: 10px;">
+                        ✧ Рассчитать лунный день ✧
+                    </button>
+                </form>
+            </div>
+<!-- 1.3 Астрологические часы -->
+            <div id="daily-hours" class="sub-tab-content">
+                <div class="tool-description-card">
+                    <div class="tool-desc-content">
+                        <b>⏳ Астрологические часы</b> — профессиональный расчет планетарного влияния. Узнайте точное время господства космических сфер с привязкой к реальному восходу солнца в вашем городе.<span class="info-btn" onclick="openMagicScroll('hours-guide')">ⓘ</span>
+                    </div>
+                </div>
+                <!-- Форма выбора параметров -->
+                <form id="astro-hours-form" onsubmit="event.preventDefault(); calculateAstroHoursForDateTime(); return false;" style="margin-top: 15px;">
+                    <div class="form-group city-autocomplete-wrapper">
+                        <label for="astro-hours-city">Ваш город (для расчета восхода):</label>
+                        <input type="text" id="astro-hours-city" class="city-input" placeholder="Начните вводить город..." autocomplete="off" required>
+                        <div class="city-dropdown hidden"></div>
+                    </div>
+                    <div class="form-row-coords" style="display: flex; gap: 10px; margin-top: 10px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="astro-date">Выберите дату:</label>
+                            <input type="date" id="astro-date" required>
+                        </div>
+                        <div class="form-group" style="flex: 0,5;">
+                            <label for="astro-time">Выберите время:</label>
+                            <input type="time" id="astro-time" required>
+                        </div>
+                    </div>
+                    <!-- Скрытые поля для координат -->
+                    <input type="hidden" id="astro-hours-lat">
+                    <input type="hidden" id="astro-hours-lon">
+                                        <!-- 🔥 НАША НОВАЯ ЦАРСТВЕННАЯ ЗОЛОТАЯ КНОПКА -->
+                    <button type="submit" class="main-gold-btn">✦ Рассчитать планетарный час ✦</button>
+                </form>
+                <!-- 🔏 Невидимая заглушка результатов, чтобы JS не ругался при поиске элемента -->
+                <div id="astro-hours-result" class="hidden"></div>
+            </div>
+                                                       <!-- 1.4 Биоритмы -->
+<div id="biorhythms" class="sub-tab-content">
+    <!-- 1. Узкая верхняя полоска-сводка Биоритмов (Изначально скрыта) -->
+    <div id="bio-collapsed-bar" class="hidden" style="background: rgba(22, 18, 36, 0.7); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Манускрипт Циклов Жизни</span>
+            <span id="bio-summary-text" style="color: #a78bfa; font-weight: bold; font-size: 14px;">Дата • Пол</span>
+        </div>
+        <span id="bio-reset-cross" onclick="window.executeGrimoireBioReset()" style="font-size: 26px; color: #a0a5c0; cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s;">&times;</span>
+    </div>
+    <!-- 2. Блок описания и формы ввода (Схлопывается при расчете!) -->
+    <div id="bio-main-form-wrapper" style="transition: all 0.4s ease-in-out;">
+        <div class="tool-description-card">
+            <div class="tool-desc-content">
+                <b>📊 Биоритмы человека</b> — расчет физической, эмоциональной и интеллектуальной активности на текущий день со дня вашего рождения.<span class="info-btn" onclick="openMagicScroll('biorhythms-guide')">ⓘ</span>
+            </div>
+        </div>
+        <form id="biorhythm-form" onsubmit="event.preventDefault(); calculateBiorhythms(); return false;" style="margin-top: 15px;">
+            <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: flex-end;">
+                <div style="flex: 1.2;">
+                    <label for="bio-birthdate" style="color: #94a3b8 !important; font-size: 14px !important; font-weight: normal !important; display: block; margin-bottom: 4px; text-transform: none !important; letter-spacing: 0.3px;">Дата вашего рождения:</label>
+                    <input type="date" id="bio-birthdate" required style="width: 100%; height: 42px; padding: 10px; background: #0d0a14; color: #fff; border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 8px; color-scheme: dark; outline: none; box-sizing: border-box;">
+                </div>
+                <div style="flex: 1;">
+                    <label for="bio-gender" style="color: #94a3b8 !important; font-size: 14px !important; font-weight: normal !important; display: block; margin-bottom: 4px; text-transform: none !important; letter-spacing: 0.3px;">Выберите пол:</label>
+                    <select id="bio-gender" style="width: 100%; height: 42px; padding: 10px; background: #0d0a14; color: #fff; border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 8px; outline: none; -webkit-appearance: none; box-sizing: border-box;">
+                        <option value="woman">Женщина ♀️</option>
+                        <option value="man">Мужчина ♂️</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="main-gold-btn">✦ Рассчитать биоритмы ✦</button>
+        </form>
+    </div>
+    <!-- 3. 🌋 ЦАРСТВЕННЫЙ ХОЛСТ НЕОНОВЫХ РЕАКТОРОВ (Изначально скрыт) -->
+    <div id="bio-visualization-block" class="hidden" style="margin-top: 5px; margin-bottom: 20px; transition: all 0.4s ease;">
+        <div class="grimoire-card" style="background: rgba(15, 11, 28, 0.55); border: 1px solid rgba(167, 139, 250, 0.15); border-radius: 14px; padding: 18px; box-shadow: 0 4px 25px rgba(0,0,0,0.4);">
+            <h3 style="text-align: center; color: #e2c275; font-family: 'Philosopher', sans-serif; font-size: 16px; margin: 0 0 20px 0; text-shadow: 0 0 8px rgba(226,194,117,0.2);">📊 Кривые Биологической Активности</h3>
+            <!-- Реактор 1: Физический -->
+            <div style="margin-bottom: 18px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items: center;">
+                    <span style="color: #f8fafc; font-size: 13.5px;">🏃‍♂️ Физическая энергия: <span id="bio-p-status" style="font-size: 11.5px; font-weight: bold;"></span></span>
+                    <b style="color: #ef4444; font-size: 14px;" id="bio-p-percent">0%</b>
+                </div>
+                <div style="width:100%; height:14px; background: #0d0a14; border-radius:7px; overflow:hidden; border:1px solid rgba(239, 68, 68, 0.15); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); position: relative;">
+                    <div id="bio-p-bar" style="width: 0%; height:100%; background: linear-gradient(90deg, #b91c1c 0%, #ef4444 100%); border-radius: 7px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);"></div>
+                </div>
+            </div>
+            <!-- Реактор 2: Эмоциональный -->
+            <div style="margin-bottom: 18px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items: center;">
+                    <span style="color: #f8fafc; font-size: 13.5px;">🎭 Эмоциональный баланс: <span id="bio-e-status" style="font-size: 11.5px; font-weight: bold;"></span></span>
+                    <b style="color: #3b82f6; font-size: 14px;" id="bio-e-percent">0%</b>
+                </div>
+                <div style="width:100%; height:14px; background: #0d0a14; border-radius:7px; overflow:hidden; border:1px solid rgba(59, 130, 246, 0.15); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); position: relative;">
+                    <div id="bio-e-bar" style="width: 0%; height:100%; background: linear-gradient(90deg, #1d4ed8 0%, #3b82f6 100%); border-radius: 7px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);"></div>
+                </div>
+            </div>
+            <!-- Реактор 3: Интеллектуальный -->
+            <div style="margin-bottom: 22px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items: center;">
+                    <span style="color: #f8fafc; font-size: 13.5px;">🧠 Интеллектуальный тонус: <span id="bio-i-status" style="font-size: 11.5px; font-weight: bold;"></span></span>
+                    <b style="color: #10b981; font-size: 14px;" id="bio-i-percent">0%</b>
+                </div>
+                <div style="width:100%; height:14px; background: #0d0a14; border-radius:7px; overflow:hidden; border:1px solid rgba(16, 185, 129, 0.15); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); position: relative;">
+                    <div id="bio-i-bar" style="width: 0%; height:100%; background: linear-gradient(90deg, #047857 0%, #10b981 100%); border-radius: 7px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);"></div>
+                </div>
+            </div>
+            <!-- Золотая кнопка раскрытия текстового манускрипта -->
+            <button onclick="window.openBioTextScroll()" class="main-gold-btn" style="margin: 5px 0 0 0; background: linear-gradient(135deg, rgba(226,194,117,0.1) 0%, rgba(184,147,67,0.05) 100%); border: 1px solid rgba(226,194,117,0.3); color: #e2c275; box-shadow: none;">
+                📜 Раскрыть тайный совет оракула
+            </button>
+        </div>
+    </div>
+    <!-- Твоя оригинальная скрытая база результатов -->
+    <div id="bio-result" class="hidden"></div>
+</div>
+            <!-----------------1.5 Совет дня ------------------------------>
+<div id="daily-advice" class="sub-tab-content">
+    <!-- 1. Узкая верхняя полоска-сводка Совета Дня (Изначально скрыта) -->
+    <div id="advice-collapsed-bar" class="hidden" style="background: rgba(22, 18, 36, 0.7); border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Манускрипт Откровения</span>
+            <span id="advice-summary-text" style="color: #e2c275; font-weight: bold; font-size: 14px;">Путь Оракула • Пол</span>
+        </div>
+        <span id="advice-reset-cross" onclick="window.executeGrimoireAdviceReset()" style="font-size: 26px; color: #a0a5c0; cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s;">&times;</span>
+    </div>
+    <!-- 2. Блок описания и формы (Схлопывается при расчете!) -->
+    <div id="advice-main-form-wrapper" style="transition: all 0.4s ease-in-out;">
+        <div class="tool-description-card" style="margin-bottom: 16px;">
+            <div class="tool-desc-content">
+                <b>Совет дня</b> — выберите один из трех сакральных путей пророчества на сегодня. Оракул принимает строго один золотой жетон в сутки.<span class="info-btn" onclick="openMagicScroll('advice-guide')">ⓘ</span>
+            </div>
+        </div>
+        <!-- 🔮 ЦАРСТВЕННЫЕ НЕОНОВЫЕ СКРИЖАЛИ ВЫБОРА РЕЖИМА -->
+        <div class="advice-mode-tabs" style="display: flex; gap: 6px; margin-bottom: 16px;">
+            <button type="button" class="advice-scr-btn active" data-adv-mode="luna" onclick="switchAdviceMode('luna', this)" style="flex: 1; padding: 12px 2px; font-size: 12px !important; background: rgba(167, 139, 250, 0.06); color: #e2c275; border: 1px solid rgba(226, 194, 117, 0.4); border-radius: 10px; font-weight: bold; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 0 10px rgba(167,139,250,0.05); outline: none;">
+                🌙 Транзит Луны
+            </button>
+            <button type="button" class="advice-scr-btn" data-adv-mode="numeric" onclick="switchAdviceMode('numeric', this)" style="flex: 1; padding: 12px 2px; font-size: 12px !important; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 10px; cursor: pointer; transition: all 0.25s ease; outline: none;">
+                🔢 Перс. число
+            </button>
+            <button type="button" class="advice-scr-btn" data-adv-mode="sun" onclick="switchAdviceMode('sun', this)" style="flex: 1; padding: 12px 2px; font-size: 12px !important; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 10px; cursor: pointer; transition: all 0.25s ease; outline: none;">
+                ☀️ Транзит Солнца
+            </button>
+        </div>
+        <!-- Главное Магическое Поле ввода параметров -->
+        <div class="advice-transformer-box" style="background: rgba(15, 11, 28, 0.55); border: 1px solid rgba(226, 194, 117, 0.15); border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin-bottom: 15px;">
+            <!-- Строка 1: Знаки Зодиака и Гендер -->
+            <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+                <div id="wrapper-adv-zodiac" style="flex: 1.2; transition: all 0.3s;">
+                    <label style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Твой знак Зодиака:</label>
+                    <select id="adv-zodiac" style="width: 100%; height: 42px; padding: 10px; background: #0f0b1c; border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 8px; color: #cbd5e1; padding: 10px; font-size: 14px; outline: none;">
+                        <option value="aries">Овен ♈</option><option value="taurus">Телец ♉</option><option value="gemini">Близнецы ♊</option>
+                        <option value="cancer">Рак ♋</option><option value="leo">Лев ♌</option><option value="virgo">Дева 👑</option>
+                        <option value="libra">Весы ♎</option><option value="scorpio">Скорпион ♏</option><option value="sagittarius">Стрелец ♐</option>
+                        <option value="capricorn">Козерог ♑</option><option value="aquarius">Водолей ♒</option><option value="pisces">Рыбы ♓</option>
+                    </select>
+                </div>
+                <div id="wrapper-adv-gender" style="flex: 1; transition: all 0.3s;">
+                    <label style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Укажите ваш пол:</label>
+                    <select id="adv-gender" style="width: 100%; height: 42px; padding: 10px; background: #0f0b1c; border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 8px; color: #cbd5e1; padding: 10px; font-size: 14px; outline: none;">
+                        <option value="woman">Женщина ♀️</option>
+                        <option value="man">Мужчина ♂️</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Строка 2: Дата Рождения и Время Рождения -->
+            <div id="wrapper-adv-datetime" style="display: flex; gap: 10px; margin-bottom: 14px; transition: all 0.3s;" class="hidden">
+                <div style="flex: 1;">
+                    <label style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Дата Рождения:</label>
+                    <input type="date" id="adv-birthdate" style="width: 100%; height: 42px; padding: 10px; background: #0f0b1c; border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 8px; color: #cbd5e1; font-family: monospace; outline: none; color-scheme: dark; box-sizing: border-box;">
+                </div>
+                <div id="wrapper-adv-time" style="flex: 1; transition: all 0.3s;" class="hidden">
+                    <label style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Время рождения:</label>
+                    <input type="time" id="adv-birthtime" style="width: 100%; height: 42px; padding: 10px; background: #0f0b1c; border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 8px; color: #cbd5e1; font-family: monospace; outline: none; color-scheme: dark; box-sizing: border-box;">
+                </div>
+            </div>
+            <!-- Строка 3: Город рождения (Автокомплит) -->
+            <div id="wrapper-adv-city" style="margin-bottom: 4px; transition: all 0.3s; position: relative;" class="form-group city-autocomplete-wrapper hidden">
+                <label style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Город рождения:</label>
+                <input type="text" id="adv-city" class="city-input" placeholder="Начните вводить город..." autocomplete="off" style="width: 100%; height: 42px; padding: 12px; background: #0f0b1c; border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 8px; color: #cbd5e1; outline: none; box-sizing: border-box;">
+                <div class="city-dropdown hidden" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:140px; overflow-y:auto; z-index:10009; margin-top:4px;"></div>
+            </div>
+            <input type="hidden" id="adv-lat"><input type="hidden" id="adv-lon">
+                        <!-- 🔥 ЦАРСТВЕННАЯ ОБЪЁМНАЯ КНОПКА С ПРАВИЛЬНОЙ ФУНКЦИЕЙ РАСЧЁТА -->
+            <button id="advice-submit" type="button" class="main-gold-btn" onclick="executeDailyAdviceCalculation()" style="width: 100%; margin-top: 12px;">
+                ✦ Активировать совет дня ✦
+            </button>
+        </div>
+    </div>
+        <!-- 3. Блок визуализации: Живой Алхимический Алтарь Судьбы -->
+    <div id="advice-visualization-block" class="hidden" style="margin-top: 5px; margin-bottom: 24px; text-align: center;">
+        <div class="grimoire-card" style="background: rgba(15, 11, 28, 0.55); border: 1px solid rgba(226, 194, 117, 0.15); border-radius: 14px; padding: 20px 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+            <!-- Контейнер для динамического неонового SVG-Артефакта -->
+            <div id="advice-svg-container" style="width: 100%; max-width: 260px; aspect-ratio: 1 / 1; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                <!-- Сюда JavaScript вдохнет жизнь и зажжет символы светил -->
+            </div>
+            <p style="font-family: 'Philosopher', sans-serif; font-size: 14px; color: #a0a5c0; margin: -5px 0 4px 0; font-style: italic;">
+                ✦ Нажмите на Печать Оракула, чтобы призвать Свиток ✦
+            </p>
+        </div>
+    </div>
+    <div id="daily-advice-result" class="hidden"></div>
+</div>
+<style>
+    @keyframes pulseAdviceGlow { from { transform: scale(0.96); filter: drop-shadow(0 0 4px rgba(226,194,117,0.2)); } to { transform: scale(1.04); filter: drop-shadow(0 0 15px rgba(226,194,117,0.6)); } }
+    .advice-scr-btn:hover { border-color: rgba(226, 194, 117, 0.3) !important; color: #cbd5e1 !important; }
+</style>
+</section>
+          <!-- ================= 2. АСТРОПРОЦЕССОР ================= -->
+        <section id="screen-astroprocessor" class="screen-content">
+            <div class="sub-tab-wrapper">
+                <nav class="sub-tab-nav">
+                    <button class="sub-tab-btn active" data-subtab="natal">Натальная карта</button>
+                    <button class="sub-tab-btn" data-subtab="transit">Транзиты</button>
+                    <button class="sub-tab-btn" data-subtab="synastry">Синастрия</button>
+                    <button class="sub-tab-btn" data-subtab="bazi-processor">Ба Цзы</button>
+                    <button class="sub-tab-btn" data-subtab="solar">Соляр</button>
+                    <button class="sub-tab-btn" data-subtab="matrix">Матрица Судьбы</button>
+                    <button class="sub-tab-btn" data-subtab="finance-tool">Финансовый код</button>
+                    <button class="sub-tab-btn" data-subtab="karma-tool">Кармический паспорт</button>
+                    <button class="sub-tab-btn" data-subtab="kids-tool">Детский гороскоп</button>
+
+
+                </nav>
+            </div>
+                   <!-- ================= 2.1 НАТАЛЬНАЯ КАРТА: ИНТЕРАКТИВНЫЙ ТРАНСФОРМЕР ================= -->
+<div id="natal" class="sub-tab-content active">
+    <!-- 1. Узкая верхняя полоска-сводка (Изначально скрыта) -->
+    <div id="natal-collapsed-bar" class="hidden" style="background: rgba(22, 18, 36, 0.7); border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Натальный Радикс</span>
+            <span id="natal-summary-text" style="color: #e2c275; font-weight: bold; font-size: 14px;">Дата • Время • Пол</span>
+        </div>
+        <span id="natal-reset-cross" style="font-size: 26px; color: #a0a5c0; cursor: pointer; transition: color 0.2s; line-height: 1; padding: 0 4px;">&times;</span>
+    </div>
+    <!-- 2. Основная форма ввода данных карты -->
+    <form id="natal-form" style="transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 600px; overflow: hidden;">
+        <div class="tool-description-card">
+            <div class="tool-desc-content">
+                <b>Натальная карта</b> — персональный «паспорт» вашей личности.<span class="info-btn" onclick="openMagicScroll('natal-guide')">ⓘ</span>
+            </div>
+        </div>
+        <!-- Ряд 1: Дата рождения -->
+        <div class="form-group">
+            <label for="natal-date">Дата рождения:</label>
+            <input type="date" id="natal-date" required>
+        </div>
+        <!-- Ряд 2: Время рождения и Выбор Пола (50% на 50%) -->
+        <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+            <div style="flex: 1;">
+                <label for="natal-time">Время:</label>
+                <input type="time" id="natal-time" required>
+            </div>
+            <div style="flex: 1;">
+                <label for="natal-gender">Ваш пол:</label>
+                <select id="natal-gender">
+                    <option value="woman">Женщина ♀️</option>
+                    <option value="man">Мужчина ♂️</option>
+                </select>
+            </div>
+        </div>
+        <!-- Ряд 3: Город рождения -->
+        <div class="form-group city-autocomplete-wrapper">
+            <label for="natal-city">Город рождения:</label>
+            <input type="text" id="natal-city" class="city-input" placeholder="Начните вводить город..." autocomplete="off">
+            <div class="city-dropdown hidden"></div>
+        </div>
+        <!-- Ряд 4: Координаты -->
+        <div class="form-row-coords" style="margin-bottom: 15px;">
+            <div class="form-group">
+                <label for="natal-lat">Широта:</label>
+                <input type="number" id="natal-lat" name="lat" step="any" required placeholder="55.7558">
+            </div>
+            <div class="form-group">
+                <label for="natal-lon">Долгота:</label>
+                <input type="number" id="natal-lon" name="lon" step="any" required placeholder="37.6173">
+            </div>
+        </div>
+        <!-- Кнопка расчета формы (Улетает вместе с ней) -->
+        <button type="submit" class="main-gold-btn">✧ Рассчитать Карту ✧</button>
+    </form>
+        <!-- 3. Интерактивный блок Колеса (С неоновой легендой-пояснением) -->
+    <div id="natal-map-viewport" class="hidden" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 5px;">
+        <!-- Квадратный контейнер под SVG -->
+        <div style="width: 100%; aspect-ratio: 1 / 1; background: radial-gradient(circle, #130f24 0%, #090710 100%); border: 2px solid rgba(167, 139, 250, 0.25); border-radius: 16px; box-shadow: 0 0 25px rgba(108, 92, 231, 0.15), inset 0 0 20px rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; position: relative;">
+            <div id="natal-svg-container" style="width: 95%; height: 95%;">
+                <!-- Сюда движок нарисует колесо в стиле Таро -->
+            </div>
+        </div>
+        <!-- 🔮 ЭЛЕГАНТНАЯ ЛЕГЕНДА КАРТЫ ДЛЯ ЮЗЕРА -->
+        <div id="natal-map-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; background: rgba(22, 18, 36, 0.4); border: 1px solid rgba(167, 139, 250, 0.1); border-radius: 10px; padding: 8px 12px; margin: -4px 0 4px 0; font-size: 11px; color: #a0a5c0; font-family: sans-serif;">
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="color: #e2c275; font-size: 13px;">☉</span> <span style="color: #e2c275; font-weight: bold;">Планеты</span> — силы твоей личности
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="display: inline-block; width: 12px; height: 2px; background: #e2c275; box-shadow: 0 0 4px #e2c275;"></span> <span style="color: #e2c275; font-weight: bold;">Гармония</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="display: inline-block; width: 12px; height: 2px; border-bottom: 2px dashed #ef4444;"></span> <span style="color: #ef4444; font-weight: bold;">Вызов</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="color: #a78bfa; font-weight: bold;">Asc / MC</span> — Личный бренд и Олимп карьеры
+            </div>
+        </div>
+        <!-- Золотая кнопка «Расшифровать» -->
+        <button id="natal-decode-btn" type="button" class="main-gold-btn">
+            ✧ Расшифровать Манускрипт ✧
+        </button>
+            <button id="full-natal-pdf-btn" type="button" style="width: 100%; margin-top: 10px; padding: 12px 16px; background: rgba(226, 194, 117, 0.08); border: 1px solid #e2c275; border-radius: 12px; color: #e2c275; font-family: 'Philosopher', serif; font-size: 14px; font-weight: bold; cursor: pointer;">
+        🪐 Скачать Полный Натальный Манускрипт (PDF)
+        </button>
+
+    </div>
+</div>
+                                               <!-- ================= 2.2 Transit: Абсолютно Автономный Монолит БЕЗ ФОРМЫ ================= -->
+<div id="transit" class="sub-tab-content">
+    <!-- Автономный контейнер-трансформер вместо формы -->
+    <div id="transit-main-block" style="transition: all 0.4s ease-in-out;">
+        <div class="tool-description-card">
+            <div class="tool-desc-content">
+                <b>Космические транзиты</b> — наложение текущей погоды неба на твою личную карту рождения. Снайперский LEGO-анализ главных событий суток.
+            </div>
+        </div>
+        <!-- 🪐 БЛОК ПАРАМЕТРОВ РОЖДЕНИЯ -->
+        <div style="background: rgba(16, 185, 129, 0.02); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 14px; padding: 14px; margin-top: 15px; margin-bottom: 15px;">
+            <span style="color: #10b981; font-size: 13px; font-weight: bold; display: block; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">🪐 Данные твоего Радикса</span>
+            <!-- Ряд 1: Дата и Время рождения -->
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <div style="flex: 1.2;">
+                    <label for="transit-birth-date" style="color: #94a3b8 !important; font-size: 12px !important; margin-bottom: 4px; display: block;">Дата рождения:</label>
+                    <input type="date" id="transit-birth-date" required style="height: 40px; width: 100%; box-sizing: border-box;">
+                </div>
+                <div style="flex: 0.8;">
+                    <label for="transit-birth-time" style="color: #94a3b8 !important; font-size: 12px !important; margin-bottom: 4px; display: block;">Время:</label>
+                    <input type="time" id="transit-birth-time" value="12:00" required style="height: 40px; width: 100%; box-sizing: border-box;">
+                </div>
+            </div>
+            <!-- Ряд 2: Пол и Город рождения -->
+            <div style="display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-end; width: 100%;">
+                <div style="flex: 0.9; display: flex; flex-direction: column;">
+                    <label for="transit-embedded-gender" style="color: #94a3b8 !important; font-size: 12px !important; margin-bottom: 4px; display: block;">Ваш пол:</label>
+                    <select id="transit-embedded-gender" style="height: 40px; border-radius: 12px !important; padding-left: 10px !important; margin: 0 !important; width: 100%; box-sizing: border-box; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.3);">
+                        <option value="woman">Женщина ♀️</option>
+                        <option value="man">Мужчина ♂️</option>
+                    </select>
+                </div>
+                <div style="flex: 1.1; display: flex; flex-direction: column; position: relative;" class="city-autocomplete-wrapper">
+                    <label for="transit-city" style="color: #94a3b8 !important; font-size: 12px !important; margin-bottom: 4px; display: block;">Город рождения:</label>
+                    <input type="text" id="transit-city" class="city-input" placeholder="Начни вводить..." autocomplete="off" style="height: 40px; margin: 0 !important; padding: 0 12px !important; box-sizing: border-box !important;">
+                    <div class="city-dropdown hidden" id="transit-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:150px; overflow-y:auto; z-index:10002; top: 100%;"></div>
+                </div>
+            </div>
+            <!-- 🔥 КРИСТАЛЬНО ЧИСТЫЕ ID КООРДИНАТ БЕЗ EMBEDDED ПРИСТАВОК -->
+            <input type="hidden" id="transit-lat" value="">
+            <input type="hidden" id="transit-lon" value="">
+        </div>
+        <!-- 📅 БЛОК ВЫБОРА ДАТЫ ПРОГНОЗА -->
+        <div class="form-group">
+            <label for="transit-date" style="color: #10b981 !important; font-weight: bold !important; font-size: 13px !important;">Выберите дату прогноза на небе:</label>
+            <input type="date" id="transit-date" required style="height: 42px; border: 1px solid rgba(16, 185, 129, 0.3) !important; width: 100%; box-sizing: border-box;">
+        </div>
+        <!-- КНОПКА С ПРЯМЫМ ОНКЛИКОМ -->
+        <button type="button" onclick="window.executeGrimoireTransitScan()" class="main-gold-btn" style="margin-top: 15px;">
+            ✧ Сканировать Потоки Времени ✧
+        </button>
+    </div>
+    <!-- Вьюпорт двухслойной карты -->
+    <div id="transit-map-viewport" class="hidden" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 5px;">
+        <div id="transit-collapsed-bar" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Двухслойный Радикс Времени</span>
+                <span id="transit-summary-text" style="color: #10b981; font-weight: bold; font-size: 14px;">Дата Прогноза</span>
+            </div>
+            <!-- ИСПРАВЛЕНО: Прямой инлайн-вызов сброса, который пробивает любые заторы кликов! -->
+<span id="transit-reset-cross" onclick="window.executeGrimoireTransitReset()" style="font-size: 26px; color: #a0a5c0; cursor: pointer; line-height: 1; padding: 0 4px;">&times;</span>
+        </div>
+        <div style="width: 100%; aspect-ratio: 1 / 1; background: radial-gradient(circle, #0e1a14 0%, #090710 100%); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 16px; box-shadow: 0 0 25px rgba(16, 185, 129, 0.15), inset 0 0 20px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;">
+            <div id="transit-svg-container" style="width: 95%; height: 95%;"></div>
+        </div>
+        <!-- 🔥 ДОБАВЛЯЕМ ЦАРСТВЕННУЮ ЗОЛОТУЮ ЛЕГЕНДУ ТРАНЗИТОВ СЮДА! -->
+            <div id="transit-map-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; background: rgba(22, 18, 36, 0.4); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 10px; padding: 8px 12px; margin: -4px 0 4px 0; font-size: 11px; color: #a0a5c0;">
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="color: #e2c275; font-size: 13px;">☉</span> <span style="color: #e2c275; font-weight: bold;">Радикс</span> — Твое Я
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="color: #10b981; font-size: 13px;">🪐</span> <span style="color: #10b981; font-weight: bold;">Транзит</span> — Погода неба
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 12px; height: 2px; background: #e2c275; box-shadow: 0 0 4px #e2c275;"></span> <span style="color: #e2c275; font-weight: bold;">Гармония</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 12px; height: 2px; border-bottom: 2px dashed #ef4444;"></span> <span style="color: #ef4444; font-weight: bold;">Вызов</span>
+                </div>
+            </div>
+            <button id="transit-decode-btn" type="button" class="main-gold-btn hidden">
+                ✧ Раскрыть Свиток Прогноза ✧
+            </button>
+            <button id="transits-pdf-btn" type="button" style="width: 100%; margin-top: 10px; padding: 12px 16px; background: rgba(16, 185, 129, 0.08); border: 1px solid #10b981; border-radius: 12px; color: #e2c275; font-family: 'Philosopher', serif; font-size: 14px; font-weight: bold; cursor: pointer; letter-spacing: 0.5px; transition: all 0.3s ease;">
+    📅 Скачать Годовой Астро-Планер (PDF)
+            </button>
+
+    </div> <!-- Закрыли вьюпорт карты -->
+</div> <!-- ЖЕСТКО ЗАКРЫЛИ САМУ ТРАНЗИТНУЮ ПОДВКЛАДКУ! -->
+                                                     <!-- ===================================================================== -->
+<!-- 👥 2.3 СИНАСТРИЯ: УЛЬТИМАТИВНЫЙ ДВУХСЛОЙНЫЙ ТРАНСФОРМЕР СОВМЕСТИМОСТИ  -->
+<!-- ===================================================================== -->
+<div id="synastry" class="sub-tab-content">
+    <!-- 1. Узкая верхняя полоска-сводка партнеров (Изначально скрыта) -->
+    <div id="synastry-collapsed-bar" class="hidden" style="background: rgba(244, 114, 182, 0.05); border: 1px solid rgba(167, 139, 250, 0.35); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Синастрический Сплав Душ</span>
+            <span id="synastry-summary-text" style="color: #a78bfa; font-weight: bold; font-size: 13px;">Партнер А ♂️ ➔ Партнер Б ♀️</span>
+        </div>
+        <!-- ИСПРАВЛЕНО: Прямой инлайн-вызов сброса, сносящий маску невидимости с формы -->
+        <span id="synastry-reset-cross" onclick="window.executeGrimoireSynastryReset()" style="font-size: 26px; color: #a0a5c0; cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s;">&times;</span>
+    </div>
+    <!-- 2. Монументальная форма ввода параметров двух карт -->
+    <form id="synastry-form" onsubmit="event.preventDefault(); window.executeGrimoireSynastryScan(); return false;" style="transition: all 0.4s ease-in-out;">
+        <div class="tool-description-card" style="margin-bottom: 14px;">
+            <div class="tool-desc-content">
+                <b>Синастрия (Совместимость)</b> — сакральное наложение двух Радиксов. Пронзает пласты времени лазерными нитями межкартовых аспектных зацеплений.<span class="info-btn" onclick="openMagicScroll('synastry-guide')">ⓘ</span>
+            </div>
+        </div>
+        <!-- КАРТА А: МУЖЧИНА (АНИМУС) -->
+        <div style="background: rgba(167, 139, 250, 0.02); border: 1px solid rgba(167, 139, 250, 0.12); border-radius: 14px; padding: 14px; margin-bottom: 14px;">
+            <h3 class="partner-title" style="color: #ffe066 !important; font-size: 14px !important; margin-top: 0; margin-bottom: 12px; letter-spacing: 0.5px;">♂️ Партнер А (Мужское начало / Анимус)</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <div style="flex: 1.2;">
+                    <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 4px;">Дата рождения:</label>
+                    <input type="date" id="syna-a-date" required style="height: 38px; width: 100%; box-sizing: border-box; font-size: 13px;">
+                </div>
+                <div style="flex: 0.8;">
+                    <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 4px;">Время:</label>
+                    <input type="time" id="syna-a-time" value="12:00" required style="height: 38px; width: 100%; box-sizing: border-box; font-size: 13px;">
+                </div>
+            </div>
+            <div class="form-group city-autocomplete-wrapper" style="margin-bottom: 4px; position: relative;">
+                <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 4px;">Город рождения А:</label>
+                <input type="text" id="syna-a-city" class="city-input" placeholder="Начните вводить город..." autocomplete="off" style="height: 38px; width: 100%; box-sizing: border-box; font-size: 13px; padding: 0 10px;">
+                <div class="city-dropdown hidden" id="syna-a-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:120px; overflow-y:auto; z-index:10005; top: 100%;"></div>
+            </div>
+            <input type="hidden" id="syna-a-lat" value="55.7558">
+            <input type="hidden" id="syna-a-lon" value="37.6173">
+        </div>
+        <!-- КАРТА Б: ЖЕНЩИНА (АНИМА) -->
+        <div style="background: rgba(244, 114, 182, 0.02); border: 1px solid rgba(244, 114, 182, 0.12); border-radius: 14px; padding: 14px; margin-bottom: 18px;">
+            <h3 class="partner-title" style="color: #a78bfa !important; font-size: 14px !important; margin-top: 0; margin-bottom: 12px; letter-spacing: 0.5px;">♀️ Партнер Б (Женское начало / Анима)</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <div style="flex: 1.2;">
+                    <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 4px;">Дата рождения:</label>
+                    <input type="date" id="syna-b-date" required style="height: 38px; width: 100%; box-sizing: border-box; font-size: 13px;">
+                </div>
+                <div style="flex: 0.8;">
+                    <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 4px;">Время:</label>
+                    <input type="time" id="syna-b-time" value="12:00" required style="height: 38px; width: 100%; box-sizing: border-box; font-size: 13px;">
+                </div>
+            </div>
+            <div class="form-group city-autocomplete-wrapper" style="margin-bottom: 4px; position: relative;">
+                <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 4px;">Город рождения Б:</label>
+                <input type="text" id="syna-b-city" class="city-input" placeholder="Начните вводить город..." autocomplete="off" style="height: 38px; width: 100%; box-sizing: border-box; font-size: 13px; padding: 0 10px;">
+                <div class="city-dropdown hidden" id="syna-b-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:120px; overflow-y:auto; z-index:10006; top: 100%;"></div>
+            </div>
+            <input type="hidden" id="syna-b-lat" value="55.7558">
+            <input type="hidden" id="syna-b-lon" value="37.6173">
+        </div>
+        <button type="submit" class="main-gold-btn">✧ Сплавить Радиксы Судеб ✧</button>
+    </form>
+    <!-- 3. Двухслойный холст-вьюпорт Синастрической карты -->
+    <div id="synastry-map-viewport" class="hidden" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 5px;">
+        <div style="width: 100%; aspect-ratio: 1 / 1; background: radial-gradient(circle, #1c0f1e 0%, #090710 100%); border: 2px solid rgba(167, 139, 250, 0.3); border-radius: 16px; box-shadow: 0 0 25px rgba(244, 114, 182, 0.15), inset 0 0 20px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;">
+            <div id="synastry-svg-container" style="width: 95%; height: 95%;">
+                <!-- Сюда графический движок начертит наложенные круги -->
+            </div>
+        </div>
+        <!-- 🔮 Премиальная синастрическая легенда карты -->
+        <div id="synastry-map-legend" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; background: rgba(22, 18, 36, 0.4); border: 1px solid rgba(167, 139, 250, 0.15); border-radius: 10px; padding: 8px 12px; font-size: 11px; color: #a0a5c0; text-align: center;">
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="color: #e2c275; font-size: 13px;">☉</span> <span style="color: #e2c275; font-weight: bold;">Ядро А ♂️</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="color: #a78bfa; font-size: 13px;">🔮</span> <span style="color: #a78bfa; font-weight: bold;">Орбита Б ♀️</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="display: inline-block; width: 12px; height: 2px; background: #e2c275;"></span> <span style="color: #e2c275; font-weight: bold;">Гармония</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="display: inline-block; width: 12px; height: 2px; border-bottom: 2px dashed #ef4444;"></span> <span style="color: #ef4444; font-weight: bold;">Вызов</span>
+            </div>
+        </div>
+                <!-- Золотая кнопка вызова Золотого Манускрипта Совместимости -->
+        <button id="synastry-decode-btn" type="button" class="main-gold-btn hidden">
+            ✧ Расшифровать Манускрипт Любви ✧
+        </button>
+        <!-- 🔥 ЦАРСТВЕННАЯ КНОПКА СКАЧИВАНИЯ ЖУРНАЛА СИНАСТРИИ В PDF (ХАК ДЛЯ ТЕЛЕГРАМА) -->
+        <button id="synastry-pdf-download-btn" class="hidden"
+                style="width: 100%; max-width: 420px; margin: 6px auto 18px; padding: 13px 20px; display: flex;
+                       align-items: center; justify-content: center; gap: 9px; cursor: pointer;
+                       background: linear-gradient(135deg, rgba(226,194,117,0.08), rgba(15,11,28,0.5));
+                       border: 1px solid rgba(226,194,117,0.35); border-radius: 11px;
+                       color: #e2c275; font-family: 'Philosopher', sans-serif; font-size: 13px;
+                       letter-spacing: 0.8px; text-transform: uppercase; transition: all 0.3s ease;
+                       box-shadow: 0 0 14px rgba(226,194,117,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+                       backdrop-filter: blur(3px);">
+            <span style="font-size: 17px;">📄</span>
+            <span>Скачать Манускрипт Синастрии в PDF</span>
+        </button>
+    </div>
+</div>
+<!-- ===================================================================== -->
+<!-- 🧧 МОДУЛЬ КАРТЫ БА ЦЗЫ (ЧЕТЫРЕ СТОЛПА СУДЬБЫ) — БЛОК 1                -->
+<!-- ===================================================================== -->
+<div id="bazi-processor" class="sub-tab-content hidden" style="padding: 4px;">
+    <!-- 1. Узкая верхняя полоска-сводка Ба Цзы (Всплывает после ввода данных) -->
+    <div id="bazi-collapsed-bar" class="hidden" style="background: rgba(22, 18, 36, 0.7); border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Четыре Столпа Судьбы</span>
+            <span id="bazi-summary-text" style="color: #e2c275; font-weight: bold; font-size: 14px;">Дата • Время • Пол</span>
+        </div>
+        <span id="bazi-reset-cross" onclick="window.executeGrimoireBaziReset()" style="font-size: 26px; color: #a0a5c0; cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s;">&times;</span>
+    </div>
+    <!-- 2. Форма ввода натальных данных Ба Цзы (Схлопывается при расчете) -->
+    <div id="bazi-main-form-wrapper" style="transition: all 0.4s ease-in-out;">
+        <div class="tool-description-card" style="margin-bottom: 16px;">
+            <div class="tool-desc-content">
+                <b>Карта Четырёх Столпов Судьбы (Ба Цзы)</b> — древнекитайская хрономантия. Позволяет рассчитать карту энергетического паспорта духа на момент земного воплощения.
+            </div>
+        </div>
+        <div class="grimoire-card" style="background: rgba(15, 11, 28, 0.55); border: 1px solid rgba(226, 194, 117, 0.15); border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <!-- Ряд 1: Выбор пола и Даты -->
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Твой пол:</label>
+                        <select id="bazi-gender">
+                            <option value="woman">Женщина ♀️</option>
+                            <option value="man">Мужчина ♂️</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1.2;">
+                        <label for="bazi-date" style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Дата воплощения:</label>
+                        <input type="date" id="bazi-date" required>
+                    </div>
+                </div>
+                <!-- Ряд 2: Время и Местоположение (для True Solar Time) -->
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 0.8;">
+                        <label for="bazi-time" style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Время (час:мин):</label>
+                        <input type="time" id="bazi-time" value="12:00" required>
+                    </div>
+                    <div class="form-group city-autocomplete-wrapper" style="flex: 1.2; margin-bottom: 0; position: relative;">
+                        <label style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Город рождения:</label>
+                        <input type="text" class="city-input" id="bazi-city-input" placeholder="Город..." autocomplete="off">
+                        <div class="city-dropdown hidden" id="bazi-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:120px; overflow-y:auto; z-index:10001; margin-top:4px;"></div>
+                    </div>
+                </div>
+                <!-- Скрытые параметры гео-координат -->
+                <input type="hidden" id="bazi-lat" value="">
+                <input type="hidden" id="bazi-lon" value="">
+                <button type="button" class="main-gold-btn" onclick="window.calculateBaziMaster()" style="width: 100%; margin-top: 10px;">
+                    ✦ Рассчитать Столпы Судьбы ✦
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- 3. Интерактивная карточка-паспорт 4 Столпов Судьбы (Изначально скрыта) -->
+    <div id="bazi-visualization-block" class="hidden" style="margin-bottom: 24px; text-align: center;">
+        <div id="bazi-table-container" style="width: 100%; max-width: 440px; margin: 0 auto; background: rgba(22, 18, 36, 0.6); border-radius: 16px; padding: 16px; border: 1px solid rgba(226, 194, 117, 0.25); box-shadow: 0 0 25px rgba(226, 194, 117, 0.15);">
+            <!-- JavaScript врисует сюда традиционную таблицу 4х2 с Четырьмя Столпами (Час, День, Месяц, Год) -->
+            <div style="color: #a78bfa; font-size: 14px; animation: pulseAdviceGlow 2s infinite alternate;">✨ Карта Четырех Столпов активирована...</div>
+        </div>
+    </div>
+    <!-- 4. Блок трех элитных пакетов манускриптов в золотых рамках с неоновыми замками -->
+    <div id="bazi-packets-block" class="hidden" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+        <!-- ПАКЕТ 1. ОТКРЫТО ПО УМОЛЧАНИЮ -->
+        <div onclick="window.triggerBaziPacket('base')" class="packet-btn-card" style="background: rgba(226, 194, 117, 0.04); border: 1px solid rgba(226, 194, 117, 0.25); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">📜</span>
+                <div style="text-align: left;">
+                    <h4 style="color: #e2c275; font-family: 'Philosopher', sans-serif; font-size: 14px; margin: 0 0 2px 0;">Базовый Манускрипт Сути</h4>
+                    <p style="color: #a0a5c0; font-size: 11.5px; margin: 0;">Сплав Истинного Элемента Личности и Тотема Года</p>
+                </div>
+            </div>
+            <span style="color: #ffe066; font-size: 11px; font-weight: bold; border: 1px solid rgba(255,224,102,0.3); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Открыто</span>
+        </div>
+        <!-- ПАКЕТ 2. ЗАКРЫТО НА ЗАМОК -->
+        <div onclick="window.triggerBaziPacket('assets')" class="packet-btn-card" style="background: rgba(15, 11, 28, 0.4); border: 1px solid rgba(167, 139, 250, 0.15); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">💼</span>
+                <div style="text-align: left;">
+                    <h4 style="color: #cbd5e1; font-family: 'Philosopher', sans-serif; font-size: 14px; margin: 0 0 2px 0;">Манускрипт Дел и Карьерных Врат</h4>
+                    <p style="color: #888da8; font-size: 11.5px; margin: 0;">Столп Бизнеса, скрытые амбиции и 4 Священные Звезды</p>
+                </div>
+            </div>
+            <span style="color: #a78bfa; font-size: 15px; filter: drop-shadow(0 0 5px #a78bfa);">🔒</span>
+        </div>
+        <!-- ПАКЕТ 3. ЗАКРЫТО НА ЗАМОК -->
+        <div onclick="window.triggerBaziPacket('chronos')" class="packet-btn-card" style="background: rgba(15, 11, 28, 0.4); border: 1px solid rgba(167, 139, 250, 0.15); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">🔮</span>
+                <div style="text-align: left;">
+                    <h4 style="color: #cbd5e1; font-family: 'Philosopher', sans-serif; font-size: 14px; margin: 0 0 2px 0;">Высшее Откровение: Свиток Хроноса</h4>
+                    <p style="color: #888da8; font-size: 11.5px; margin: 0;">Инженерия Чертога Брака и Циклы Времени Да Юнь</p>
+                </div>
+            </div>
+            <span style="color: #a78bfa; font-size: 15px; filter: drop-shadow(0 0 5px #a78bfa);">🔒</span>
+        </div>
+    </div>
+</div>
+                                                         <!-- 2.4 Солар -->
+            <div id="solar" class="sub-tab-content">
+                <form id="solar-form">
+                    <div class="form-group">
+                      <div class="tool-description-card">
+                        <div class="tool-desc-content">
+                            <b>Соляр</b> — ваш персональный прогноз на год.<span class="info-btn" onclick="openMagicScroll('solar-guide')">ⓘ</span>
+                        </div>
+                    </div>
+                        <label for="solar-date">Дата рождения:</label>
+                        <input type="date" id="solar-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="solar-time">Время рождения:</label>
+                        <input type="time" id="solar-time" required>
+                    </div>
+                    <div class="form-group city-autocomplete-wrapper">
+                        <label for="solar-city">Город встречи Соляра:</label>
+                        <input type="text" id="solar-city" class="city-input" placeholder="Введите город..." autocomplete="off">
+                        <div class="city-dropdown hidden"></div>
+                    </div>
+                    <div class="form-row-coords">
+                        <div class="form-group">
+                            <label for="solar-lat">Широта:</label>
+                            <input type="number" id="solar-lat" name="lat" step="any" required placeholder="55.7558">
+                        </div>
+                        <div class="form-group">
+                            <label for="solar-lon">Долгота:</label>
+                            <input type="number" id="solar-lon" name="lon" step="any" required placeholder="37.6173">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="solar-year">Год прогноза:</label>
+                        <input type="number" id="solar-year" name="year" required placeholder="2026">
+                    </div>
+                    <button type="submit">✧Рассчитать</button>
+                  </form>
+                <div id="solar-result"></div>
+            </div>
+                                                  <!--  Лунный день незадейстованная форма -->
+            <div id="moon-proc" class="sub-tab-content">
+                <form id="moon-proc-form">
+                    <div class="form-group">
+                        <label for="moon-proc-date">Целевая дата:</label>
+                        <input type="date" id="moon-proc-date" required>
+                    </div>
+                    <button type="submit">✧Рассчитать</button>
+                    <div class="tool-description-card">
+                        <div class="tool-desc-content">
+                            <b>Лунный день</b> — анализ фаз и ритмов Луны на выбранную дату.
+                        </div>
+                    </div>
+                </form>
+                <div id="moon-proc-result"></div>
+            </div>
+                                                <!-- 2.5 Матрица судьбы -->
+<div id="matrix" class="sub-tab-content" style="padding: 4px;">
+    <!-- 1. Узкая верхняя полоска-сводка Матрицы (Изначально скрыта) -->
+    <div id="matrix-collapsed-bar" class="hidden" style="background: rgba(22, 18, 36, 0.7); border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Манускрипт Судьбы</span>
+            <span id="matrix-summary-text" style="color: #e2c275; font-weight: bold; font-size: 14px;">Дата • Пол</span>
+        </div>
+        <span id="matrix-reset-cross" onclick="window.executeGrimoireMatrixReset()" style="font-size: 26px; color: #a0a5c0; cursor: pointer; line-height: 1; padding: 0 4px; transition: color 0.2s;">&times;</span>
+    </div>
+    <!-- 2. Блок описания и формы (Будет скрываться при расчете!) -->
+    <div id="matrix-main-form-wrapper" style="transition: all 0.4s ease-in-out;">
+        <div class="tool-description-card" style="margin-bottom: 16px;">
+            <div class="tool-desc-content">
+                <b>Матрица Судьбы</b> — метод самопознания на стыке нумерологии и Таро.<span class="info-btn" onclick="openMagicScroll('matrix-guide')">ⓘ</span>
+            </div>
+        </div>
+        <div class="grimoire-card" style="background: rgba(15, 11, 28, 0.55); border: 1px solid rgba(226, 194, 117, 0.15); border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Выбери свой пол:</label>
+                    <select id="matrix-gender" style="width: 100%; background: #0f0b1c; border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 8px; color: #cbd5e1; padding: 10px; font-size: 14px; outline: none;">
+                        <option value="woman">Женщина ♀️</option>
+                        <option value="man">Мужчина ♂️</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="matrix-date" style="color: #a0a5c0; font-size: 12.5px; display: block; margin-bottom: 6px;">Дата земного воплощения:</label>
+                    <input type="date" id="matrix-date" style="width: 100%; background: #0f0b1c; border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 8px; color: #cbd5e1; padding: 10px; font-size: 14px; outline: none; font-family: monospace;" required>
+                </div>
+                <button type="button" id="btn-calc-matrix" onclick="calculateMatrixMaster()" style="width: 100%; background: linear-gradient(135deg, #e2c275 0%, #b89343 100%); border: none; border-radius: 8px; color: #090710; padding: 12px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 6px; box-shadow: 0 4px 15px rgba(226,194,117,0.2); transition: all 0.3s ease;">
+                    ✧Рассчитать Матрицу
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- 3. Блок визуализации: Живая SVG Октаграмма Судьбы -->
+    <div id="matrix-visualization-block" class="hidden" style="margin-bottom: 24px; text-align: center;">
+        <div id="matrix-svg-container" style="width: 100%; max-width: 340px; margin: 0 auto; background: rgba(9, 7, 16, 0.4); border-radius: 50%; padding: 10px; border: 1px solid rgba(167, 139, 250, 0.05); box-shadow: 0 0 30px rgba(139, 92, 246, 0.05);">
+            <div style="height: 280px; display: flex; align-items: center; justify-content: center; color: #a78bfa; font-family: 'Philosopher', sans-serif; font-size: 14px; letter-spacing: 0.5px; animation: pulseGlow 2s infinite alternate;">
+                ✨ Октаграмма Судьбы активирована...
+            </div>
+        </div>
+    </div>
+    <!-- 4. Блок трех элитных пакетов кнопок-манускриптов -->
+    <div id="matrix-packets-block" class="hidden" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+        <div onclick="triggerMatrixPacket('base')" class="packet-btn-card" style="background: rgba(226, 194, 117, 0.04); border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">⚜️</span>
+                <div style="text-align: left;">
+                    <h4 style="color: #e2c275; font-family: 'Philosopher', sans-serif; font-size: 14px; margin: 0 0 2px 0;">Базовый Манускрипт Личности</h4>
+                    <p style="color: #a0a5c0; font-size: 11.5px; margin: 0;">Характер, Сила, Тень, Ключ активации и Высшая Суть</p>
+                </div>
+            </div>
+            <span style="color: #ffe066; font-size: 11px; font-weight: bold; border: 1px solid rgba(255,224,102,0.3); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">Открыто</span>
+        </div>
+        <div onclick="triggerMatrixPacket('material')" class="packet-btn-card" style="background: rgba(15, 11, 28, 0.4); border: 1px solid rgba(167, 139, 250, 0.1); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">💎</span>
+                <div style="text-align: left;">
+                    <h4 style="color: #cbd5e1; font-family: 'Philosopher', sans-serif; font-size: 14px; margin: 0 0 2px 0;">Манускрипт Материи и Кармы Рода</h4>
+                    <p style="color: #888da8; font-size: 11.5px; margin: 0;">Врата денег, Канал Любви, долги Рода и Петля кармы</p>
+                </div>
+            </div>
+            <span style="color: #a78bfa; font-size: 13px;">🔒</span>
+        </div>
+        <div onclick="triggerMatrixPacket('chronos')" class="packet-btn-card" style="background: rgba(15, 11, 28, 0.4); border: 1px solid rgba(167, 139, 250, 0.1); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">🔮</span>
+                <div style="text-align: left;">
+                    <h4 style="color: #cbd5e1; font-family: 'Philosopher', sans-serif; font-size: 14px; margin: 0 0 2px 0;">Высшее Откровение: Хронос-Прогноз</h4>
+                    <p style="color: #888da8; font-size: 11.5px; margin: 0;">Предназначения, Карта Чакр, Код Дьявола и Соляр Года</p>
+                </div>
+            </div>
+            <span style="color: #a78bfa; font-size: 13px;">🔒</span>
+        </div>
+    </div>
+    <div id="matrix-result" class="result-box hidden">
+        <!-- Кнопка скачивания PDF-журнала Матрицы Судьбы -->
+        <button id="matrix-pdf-download-btn"
+                style="width: 100%; max-width: 420px; margin: 6px auto 18px; padding: 13px 20px; display: flex;
+                       align-items: center; justify-content: center; gap: 9px; cursor: pointer;
+                       background: linear-gradient(135deg, rgba(226,194,117,0.08), rgba(15,11,28,0.5));
+                       border: 1px solid rgba(226,194,117,0.35); border-radius: 11px;
+                       color: #e2c275; font-family: 'Philosopher', sans-serif; font-size: 13px;
+                       letter-spacing: 0.8px; text-transform: uppercase; transition: all 0.3s ease;
+                       box-shadow: 0 0 14px rgba(226,194,117,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+                       backdrop-filter: blur(3px);">
+            <span style="font-size: 17px;">📄</span>
+            <span>Скачать Манускрипт в PDF</span>
+        </button>
+    </div>
+</div>
+    <style>
+        @keyframes pulseGlow { from { opacity: 0.5; text-shadow: 0 0 4px rgba(139,92,246,0.2); } to { opacity: 0.9; text-shadow: 0 0 12px rgba(139,92,246,0.6); } }
+        .packet-btn-card:hover { border-color: rgba(226, 194, 117, 0.4) !important; background: rgba(226, 194, 117, 0.08) !important; transform: translateY(-1px); }
+        #matrix-pdf-download-btn:hover { border-color: rgba(255,224,102,0.7) !important; background: linear-gradient(135deg, rgba(255,224,102,0.16), rgba(15,11,28,0.6)) !important;
+                                        color: #ffe066 !important; box-shadow: 0 0 22px rgba(255,224,102,0.35) !important; transform: translateY(-2px); }
+        #matrix-pdf-download-btn:active { transform: translateY(0) scale(0.98); }
+    </style>
+
+
+<!-- ================= ИНСТРУМЕНТ: ФИНАНСОВЫЙ КОД ================= -->
+<div id="finance-tool" class="sub-tab-content">
+    <div class="tool-description-card">
+        <div class="tool-desc-content">
+            <b>Финансовый код и Профориентация</b> — персональная бизнес-стратегия на стыке 2-го дома капитала, 10-го дома статуса и кармических правил Сатурна.
+        </div>
+    </div>
+    <div style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 14px; padding: 14px; margin-top: 15px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <div style="flex: 1.2;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Дата рождения:</label>
+                <input type="date" id="fin-birth-date" required style="height: 40px; width: 100%; box-sizing: border-box;">
+            </div>
+            <div style="flex: 0.8;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Время:</label>
+                <input type="time" id="fin-birth-time" value="12:00" required style="height: 40px; width: 100%; box-sizing: border-box;">
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: flex-end;">
+            <div style="flex: 0.9;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Ваш пол:</label>
+                <select id="fin-gender" style="height: 40px; border-radius: 12px; padding-left: 10px; width: 100%; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.3);">
+                    <option value="woman">Женщина ♀️</option>
+                    <option value="man">Мужчина ♂️</option>
+                </select>
+            </div>
+            <div style="flex: 1.1; position: relative;" class="city-autocomplete-wrapper">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Город рождения:</label>
+                <input type="text" id="fin-city" class="city-input" placeholder="Город..." autocomplete="off" style="height: 40px; width: 100%; box-sizing: border-box; padding: 0 12px;">
+                <div class="city-dropdown hidden" id="fin-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:150px; overflow-y:auto; z-index:10002; top: 100%;"></div>
+            </div>
+        </div>
+        <input type="hidden" id="fin-lat" value="55.7558">
+        <input type="hidden" id="fin-lon" value="37.6173">
+
+        <button id="finance-pdf-btn" type="button" class="main-gold-btn" style="margin-top: 16px;">
+            💼 Сформировать Финансовый Код (PDF)
+        </button>
+    </div>
+</div>
+
+<!-- ================= ИНСТРУМЕНТ: КАРМИЧЕСКИЙ ПАСПОРТ ================= -->
+<div id="karma-tool" class="sub-tab-content">
+    <div class="tool-description-card">
+        <div class="tool-desc-content">
+            <b>Кармический паспорт («Код Судьбы»)</b> — глубокий разбор оси Лунных Узлов (Раху и Кету) и Черной Луны (Лилит) для эволюции души.
+        </div>
+    </div>
+    <div style="background: rgba(167, 139, 250, 0.03); border: 1px solid rgba(167, 139, 250, 0.2); border-radius: 14px; padding: 14px; margin-top: 15px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <div style="flex: 1.2;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Дата рождения:</label>
+                <input type="date" id="karma-birth-date" required style="height: 40px; width: 100%; box-sizing: border-box;">
+            </div>
+            <div style="flex: 0.8;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Время:</label>
+                <input type="time" id="karma-birth-time" value="12:00" required style="height: 40px; width: 100%; box-sizing: border-box;">
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: flex-end;">
+            <div style="flex: 0.9;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Ваш пол:</label>
+                <select id="karma-gender" style="height: 40px; border-radius: 12px; padding-left: 10px; width: 100%; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.3);">
+                    <option value="woman">Женщина ♀️</option>
+                    <option value="man">Мужчина ♂️</option>
+                </select>
+            </div>
+            <div style="flex: 1.1; position: relative;" class="city-autocomplete-wrapper">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Город рождения:</label>
+                <input type="text" id="karma-city" class="city-input" placeholder="Город..." autocomplete="off" style="height: 40px; width: 100%; box-sizing: border-box; padding: 0 12px;">
+                <div class="city-dropdown hidden" id="karma-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:150px; overflow-y:auto; z-index:10002; top: 100%;"></div>
+            </div>
+        </div>
+        <input type="hidden" id="karma-lat" value="55.7558">
+        <input type="hidden" id="karma-lon" value="37.6173">
+
+        <button id="karma-pdf-btn" type="button" class="main-gold-btn" style="margin-top: 16px;">
+            🌀 Раскрыть Кармический Паспорт (PDF)
+        </button>
+    </div>
+</div>
+<!-- ================= ИНСТРУМЕНТ: ДЕТСКИЙ ГОРОСКОП ================= -->
+<div id="kids-tool" class="sub-tab-content">
+    <div class="tool-description-card">
+        <div class="tool-desc-content">
+            <b>Детский Астро-Путеводитель</b> — энциклопедия для родителей по раскрытию талантов, способностей к обучению и души ребенка.
+        </div>
+    </div>
+    <div style="background: rgba(56, 189, 248, 0.03); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 14px; padding: 14px; margin-top: 15px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <div style="flex: 1.2;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Дата рождения ребенка:</label>
+                <input type="date" id="kids-birth-date" required style="height: 40px; width: 100%; box-sizing: border-box;">
+            </div>
+            <div style="flex: 0.8;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Время:</label>
+                <input type="time" id="kids-birth-time" value="12:00" required style="height: 40px; width: 100%; box-sizing: border-box;">
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: flex-end;">
+            <div style="flex: 0.9;">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Пол ребенка:</label>
+                <select id="kids-gender" style="height: 40px; border-radius: 12px; padding-left: 10px; width: 100%; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.3);">
+                    <option value="woman">Девочка ♀️</option>
+                    <option value="man">Мальчик ♂️</option>
+                </select>
+            </div>
+            <div style="flex: 1.1; position: relative;" class="city-autocomplete-wrapper">
+                <label style="color: #94a3b8; font-size: 12px; display: block; margin-bottom: 4px;">Город рождения:</label>
+                <input type="text" id="kids-city" class="city-input" placeholder="Город..." autocomplete="off" style="height: 40px; width: 100%; box-sizing: border-box; padding: 0 12px;">
+                <div class="city-dropdown hidden" id="kids-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:150px; overflow-y:auto; z-index:10002; top: 100%;"></div>
+            </div>
+        </div>
+        <input type="hidden" id="kids-lat" value="55.7558">
+        <input type="hidden" id="kids-lon" value="37.6173">
+
+        <button id="kids-pdf-btn" type="button" class="main-gold-btn" style="margin-top: 16px;">
+            🧸 Создать Детский Путеводитель (PDF)
+        </button>
+    </div>
+</div>
+
+</section>
+                                      <!-- ================= 3. Оракл ================= -->
+        <section id="screen-oracle" class="screen-content oracle-flat-screen">
+            <div class="sub-tab-wrapper">
+                <nav class="sub-tab-nav">
+                    <button class="sub-tab-btn active" data-subtab="taro">Таро</button>
+                    <button class="sub-tab-btn" data-subtab="dreambook">Сонник</button>
+                    <button class="sub-tab-btn" data-subtab="iching">Ицзин</button>
+                    <button class="sub-tab-btn" data-subtab="runes">Руны</button>
+                    <button class="sub-tab-btn" data-subtab="ramli">Рамли</button>
+                    <button class="sub-tab-btn" data-subtab="stones">Камни</button>
+                </nav>
+            </div>
+                                         <!-- ===================================================================== -->
+<!-- 3.1 Карты таро (index.html)                                           -->
+<!-- ===================================================================== -->
+<div id="taro" class="sub-tab-content active">
+    <div class="taro-wrapper">                     
+        <!-- ===================================================================== -->
+        <!-- 🔮 1. ВЕРХНЯЯ СВЕРНУТАЯ ПАНЕЛЬ ТАРО (ВСПЛЫВАЕТ ПОСЛЕ НАЖАТИЯ КНОПКИ)   -->
+        <!-- ===================================================================== -->
+        <div id="taro-collapsed-bar" class="hidden" style="
+            background: rgba(22, 18, 36, 0.6);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        ">
+            <!-- Сюда JS запишет параметры (например: Карта дня • Женщина ♀️) -->
+            <div id="taro-summary-text" style="
+                font-family: 'Philosopher', sans-serif;
+                font-size: 14px;
+                color: #e2daf0;
+                font-weight: bold;
+                letter-spacing: 0.5px;
+            ">
+                Загрузка параметров Таро...
+            </div>
+            <!-- Крестик сброса: возвращает форму выбора обратно на экран -->
+            <div id="taro-reset-cross" onclick="window.executeGrimoireTaroReset()" style="
+                cursor: pointer;
+                font-size: 20px;
+                color: #a0a5c0;
+                padding: 0 5px;
+                transition: color 0.2s;
+            " onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#a0a5c0'">
+                &times;
+            </div>
+        </div>
+        <!-- ===================================================================== -->
+        <!-- 📦 2. ОБЩИЙ БЛОК ФОРМЫ ТАРО (СКРЫВАЕТСЯ ЦЕЛИКОМ ПРИ РАСКЛАДЕ)         -->
+        <!-- ===================================================================== -->
+        <div id="taro-main-block">
+            <div class="tool-description-card">
+                <div class="tool-desc-content">
+                    <b>Карты Таро</b> — древний символический инструмент самопознания.<span class="info-btn" onclick="openMagicScroll('taro-guide')">ⓘ</span>
+                </div>
+            </div>
+            <label style="color:#a0a5c0; font-size:13px; display:block; margin-top:10px; margin-bottom:6px;">Выберите тип расклада:</label>
+            <!-- Сетка плашек Таро 1х3 -->
+            <div class="taro-spreads-grid">
+                <button class="taro-spread-btn active" onclick="switchTaroSpread('single', this)" style="padding:10px 4px; font-size:11px; background:rgba(226,194,117,0.1); color:#e2c275; border:1px solid rgba(226,194,117,0.3); border-radius:8px; font-weight:bold; cursor:pointer;">🔮 Карта дня</button>
+                <button class="taro-spread-btn" onclick="switchTaroSpread('pair', this)" style="padding:10px 4px; font-size:11px; background:#161224; color:#a0a5c0; border:1px solid rgba(226,194,117,0.1); border-radius:8px; cursor:pointer;">💞 На пару</button>
+                <button class="taro-spread-btn" onclick="switchTaroSpread('triplet', this)" style="padding:10px 4px; font-size:11px; background:#161224; color:#a0a5c0; border:1px solid rgba(226,194,117,0.1); border-radius:8px; cursor:pointer;">⏳ Триплет</button>
+            </div>
+<div class="form-group" style="margin-top: 15px; margin-bottom: 15px;">
+    <label for="taro-gender" style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Укажите ваш пол:</label>
+    <select id="taro-gender" onchange="setGender(this.value, this)" style="width: 100%; padding: 10px; background: #0d0a14; color: #fff; border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 8px; outline: none; -webkit-appearance: none;">
+        <option value="woman">Женщина ♀️</option>
+        <option value="man">Мужчина ♂️</option>
+    </select>
+</div>
+            <!-- Царственная золотая кнопка Таро -->
+            <button onclick="requestTaroSpread()" class="main-gold-btn" style="margin-top: 20px;">
+                 ✧ Перемешать Колоду Арканов ✧ 
+            </button>
+        </div> <!-- Конец блока #taro-main-block -->
+        <!-- ===================================================================== -->
+        <!-- 🌌 3. ЗОНА ИНТЕРАКТИВНОЙ ВЫДАЧИ КАРТ (ПОД ПОЛОСОЙ)                    -->
+        <!-- ===================================================================== -->
+        <!-- Контейнер для выложенных карт -->
+        <div id="taro-cards-container" class="taro-cards-display" style="margin-top: 15px;"></div>
+    </div> <!-- 🌟 ЗАКРЫВАЕТ .taro-wrapper -->
+</div> <!-- 🌟 ЗАКРЫВАЕТ <div id="taro" class="sub-tab-content active"> -->
+                                  <!------------- 3.2 Сонник -->
+<div id="dreambook" class="sub-tab-content">
+    <div class="tool-description-card">
+        <div class="tool-desc-content">
+            <b>🌃 Сонник</b> — поможет разгадать тайный смысл ваших снов.<span class="info-btn" onclick="openMagicScroll('dreambook-guide')">ⓘ</span>
+        </div>
+    </div>
+    <h3>🌙 Сонник</h3>
+    <p>Введите ключевой символ из вашего сна:</p>
+    <!-- Поле ввода для Сонника -->
+<input type="text" id="dream-input" placeholder="Например: вода, огонь..." class="text-input" 
+       style="width: 100%; height: 50px; padding: 0 16px; border-radius: 12px; border: 1px solid rgba(226, 194, 117, 0.3); background: #121019; color: #fff; box-sizing: border-box; margin-bottom: 12px;">
+<!-- Монументальная золотая кнопка Сонника под полем ввода -->
+<button id="dream-submit" class="main-gold-btn">Расшифровать сон</button>
+    <div id="dream-output" style="margin-top: 15px; display: none;">
+        <h4 id="dream-title" style="color: #a855f7;"></h4>
+        <p id="dream-text" style="white-space: pre-line; line-height: 1.5; margin-top: 8px;"></p>
+    </div>
+</div>
+                         <!-------------3.3 Книга перемен -->
+<!-- ===================================================================== -->
+<!-- ☯️ ОБНОВЛЕННЫЙ ТАБ КНИГИ ПЕРЕМЕН (ИЦЗИН)                              -->
+<!-- ===================================================================== -->
+<div id="iching" class="sub-tab-content">
+    <div class="taro-wrapper">                     
+        <!-- 1. ВЕРХНЯЯ СВЕРНУТАЯ ПАНЕЛЬ ИЦЗИН (ВСПЛЫВАЕТ ПОСЛЕ ЗАПУСКА ГАДАНИЯ) -->
+        <div id="iching-collapsed-bar" class="hidden" style="background: rgba(22, 18, 36, 0.6); border: 1px solid rgba(226, 194, 117, 0.25); border-radius: 14px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);">
+            <div id="iching-summary-text" style="font-family: 'Philosopher', sans-serif; font-size: 14px; color: #e2daf0; font-weight: bold; letter-spacing: 0.5px;">
+                Книга Перемен • Загрузка...
+            </div>
+            <!-- Снайперский сброс: возвращает форму выбора обратно -->
+            <div id="iching-reset-cross" onclick="window.executeGrimoireIchingReset()" style="cursor: pointer; font-size: 24px; color: #a0a5c0; padding: 0 5px; line-height: 1; transition: color 0.2s;">
+                &times;
+            </div>
+        </div>
+        <!-- 📦 2. ОБЩИЙ БЛОК ФОРМЫ ИЦЗИН (СКРЫВАЕТСЯ ЦЕЛИКОМ ПРИ ЗАПУСКЕ) -->
+        <div id="iching-main-block">
+            <div class="tool-description-card">
+                <div class="tool-desc-content">
+                    <b>☯️ Книга Перемен (Ицзин)</b> — древнейший оракул Императоров. Соверши 6 интерактивных бросков монет, чтобы вырастить уникальное гексаграммное знамение Судьбы.<span class="info-btn" onclick="openMagicScroll('iching-guide')">ⓘ</span>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 15px; margin-bottom: 15px;">
+                <label for="iching-gender" style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Укажите ваш пол:</label>
+                <select id="iching-gender">
+                    <option value="woman">Женщина ♀️</option>
+                    <option value="man">Мужчина ♂️</option>
+                </select>
+            </div>
+            <label style="color:#a0a5c0; font-size:13px; display:block; margin-top:15px; margin-bottom:8px;">Выберите тип расклада:</label>
+            <div class="runes-spreads-grid" style="margin-bottom: 20px;">
+                <button class="taro-spread-btn active" data-iching-spread="daily" onclick="window.switchIchingSpread('daily', this)">Совет дня</button>
+                <button class="taro-spread-btn" data-iching-spread="business" onclick="window.switchIchingSpread('business', this)">Бизнес и дела</button>
+                <button class="taro-spread-btn" data-iching-spread="love" onclick="window.switchIchingSpread('love', this)">Любовь и союзы</button>
+            </div>
+            <button onclick="window.startIchingRitual()" class="main-gold-btn">
+                ✦ Запустить Перемены Судьбы ✦
+            </button>
+        </div>
+        <!-- 🌋 3. ЖИВОЙ АЛТАРЬ ГЕКСАГРАММ (ПОМЕЩАЕТСЯ НА ОДНОМ ЭКРАНЕ) -->
+        <div id="iching-altar-viewport" class="hidden" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 5px;">
+            <!-- А) Верхняя фиксированная зона: Чаша Оракула -->
+            <div style="width: 100%; height: 130px; background: radial-gradient(circle, #1a152b 0%, #090710 100%); border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 16px; box-shadow: inset 0 0 15px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 10px; box-sizing: border-box;">
+                <!-- Место для 3-х вращающихся SVG монет -->
+                <div id="iching-coins-bowl" style="display: flex; gap: 20px; justify-content: center; align-items: center; width: 100%; height: 60px;">
+                    <!-- Сюда JS вдохнет жизнь и закрутит монетки -->
+                </div>
+                <!-- Главная кнопка бросков и счетчик -->
+                <button id="iching-cast-btn" onclick="window.executeIchingCoinCast()" class="main-gold-btn" style="height: 36px; max-width: 220px; font-size: 13px !important; margin-top: 8px; border-radius: 20px !important;">
+                    Бросить монеты [0 / 6]
+                </button>
+            </div>
+            <!-- Б) Нижняя фиксированная зона: Фиолетовые дощечки Судьбы -->
+            <div id="iching-board" style="width: 100%; background: rgba(15, 11, 28, 0.4); border: 1px solid rgba(167, 139, 250, 0.15); border-radius: 16px; padding: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.4); display: flex; flex-direction: column-reverse; gap: 8px; box-sizing: border-box;">
+                <!-- Черты строятся СНИЗУ ВВЕРХ, flex-direction: column-reverse сделает это автоматически! -->
+                <!-- Дощечка 6 (Верхняя) -->
+                <div class="iching-plank" id="iching-plank-6" style="width: 100%; height: 22px; background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <div class="iching-line-svg" style="width: 90%; height: 100%;"></div>
+                </div>
+                <!-- Дощечка 5 -->
+                <div class="iching-plank" id="iching-plank-5" style="width: 100%; height: 22px; background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <div class="iching-line-svg" style="width: 90%; height: 100%;"></div>
+                </div>
+                <!-- Дощечка 4 -->
+                <div class="iching-plank" id="iching-plank-4" style="width: 100%; height: 22px; background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <div class="iching-line-svg" style="width: 90%; height: 100%;"></div>
+                </div>
+                <!-- Дощечка 3 -->
+                <div class="iching-plank" id="iching-plank-3" style="width: 100%; height: 22px; background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <div class="iching-line-svg" style="width: 90%; height: 100%;"></div>
+                </div>
+                <!-- Дощечка 2 -->
+                <div class="iching-plank" id="iching-plank-2" style="width: 100%; height: 22px; background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <div class="iching-line-svg" style="width: 90%; height: 100%;"></div>
+                </div>
+                <!-- Дощечка 1 (Нижняя) -->
+                <div class="iching-plank" id="iching-plank-1" style="width: 100%; height: 22px; background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <div class="iching-line-svg" style="width: 90%; height: 100%;"></div>
+                </div>
+            </div>
+            <!-- Золотая кнопка Проявления Манускрипта (появляется после 6-го броска) -->
+            <button id="iching-decode-btn" onclick="window.openIchingTextScroll()" class="main-gold-btn hidden" style="margin-top: 5px;">
+                ✧ Расшифровать Манускрипт Перемен ✦
+            </button>
+        </div>
+    </div>
+</div>
+<!-- ===================================================================== -->
+<!-- ОБНОВЛЕННЫЙ ТАБ СКАНДИНАВСКИХ РУН (index.html)                        -->
+<!-- ===================================================================== -->
+<div id="runes" class="sub-tab-content">
+    <div class="taro-wrapper">                     
+        <!-- ===================================================================== -->
+        <!-- 🔮 1. ВЕРХНЯЯ СВЕРНУТАЯ ПАНЕЛЬ РУН (ВСПЛЫВАЕТ ПОСЛЕ НАЖАТИЯ КНОПКИ)   -->
+        <!-- ===================================================================== -->
+        <div id="runes-collapsed-bar" class="hidden" style="
+            background: rgba(22, 18, 36, 0.6);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        ">
+            <!-- Сюда JS впишет параметры (например: Триплет • Женщина ♀️) -->
+            <div id="runes-summary-text" style="
+                font-family: 'Philosopher', sans-serif;
+                font-size: 14px;
+                color: #e2daf0;
+                font-weight: bold;
+                letter-spacing: 0.5px;
+            ">
+                Загрузка параметров оракула...
+            </div>
+            <!-- Крестик сброса: возвращает форму обратно на экран -->
+            <div id="runes-reset-cross" onclick="window.executeGrimoireRunesReset()" style="
+                cursor: pointer;
+                font-size: 20px;
+                color: #a0a5c0;
+                padding: 0 5px;
+                transition: color 0.2s;
+            " onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#a0a5c0'">
+                &times;
+            </div>
+        </div>
+        <!-- ===================================================================== -->
+        <!-- 📦 2. ОБЩИЙ БЛОК ФОРМЫ (СКРЫВАЕТСЯ ЦЕЛИКОМ ПРИ РАСКЛАДЕ)             -->
+        <!-- ===================================================================== -->
+        <div id="runes-main-block">
+            <div class="tool-description-card">
+                <div class="tool-desc-content">
+                    <b>ᚠ Скандинавские Руны</b> — древняя мантическая система Старшего Футарка для глубокого анализа ситуаций и ответов на вопросы.<span class="info-btn" onclick="openMagicScroll('runes-guide')">ⓘ</span>
+                </div>
+            </div>
+            <!-- Выбор пола -->
+            <div class="form-group" style="margin-top: 15px; margin-bottom: 15px;">
+                <label for="rune-gender" style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Укажите ваш пол:</label>
+                <select id="rune-gender" onchange="setGender(this.value, this)" style="width: 100%; padding: 10px; background: #0d0a14; color: #fff; border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 8px; outline: none; -webkit-appearance: none;">
+                    <option value="woman">Женщина ♀️</option>
+                    <option value="man">Мужчина ♂️</option>
+                </select>
+            </div>
+            <label style="color:#a0a5c0; font-size:13px; display:block; margin-top:15px; margin-bottom:8px;">Выберите тип расклада:</label>
+            <!-- Компактная Grid-сетка 3х2 -->
+            <div class="runes-spreads-grid">
+                <button class="taro-spread-btn active" data-rune-spread="express" onclick="switchRuneSpread('express', this)" style="padding: 12px 2px; font-size: 11px !important; background: rgba(226, 194, 117, 0.1); color: #e2c275; border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 8px; font-weight: bold; cursor: pointer;">Экспресс</button>
+                <button class="taro-spread-btn" data-rune-spread="single" onclick="switchRuneSpread('single', this)" style="padding: 12px 2px; font-size: 11px !important; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 8px; cursor: pointer;">1 руна</button>
+                <button class="taro-spread-btn" data-rune-spread="double" onclick="switchRuneSpread('double', this)" style="padding: 12px 2px; font-size: 11px !important; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 8px; cursor: pointer;">На 2 руны</button>
+                <button class="taro-spread-btn" data-rune-spread="triplet" onclick="switchRuneSpread('triplet', this)" style="padding: 12px 2px; font-size: 11px !important; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 8px; cursor: pointer;">Триплет</button>
+                <button class="taro-spread-btn" data-rune-spread="cross" onclick="switchRuneSpread('cross', this)" style="padding: 12px 2px; font-size: 11px !important; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 8px; cursor: pointer;">Крест</button>
+                <button class="taro-spread-btn" data-rune-spread="love" onclick="switchRuneSpread('love', this)" style="padding: 12px 2px; font-size: 11px !important; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 8px; cursor: pointer;">Любовь</button>
+            </div>
+            <!-- Золотая кнопка Оракула -->
+            <button onclick="requestRunesSpread()" class="main-gold-btn" style="margin-top: 20px;">
+                ✧ Начертить Руны Старшего Футарка ✧
+            </button>
+        </div> <!-- Конец блока #runes-main-block -->
+        <!-- ===================================================================== -->
+        <!-- 🌌 3. ЗОНА ИНТЕРАКТИВНОЙ ВЫДАЧИ КАРТ (ПОД ПОЛОСОЙ)                    -->
+        <!-- ===================================================================== -->
+        <!-- Сюда складываются выложенные руны, а клик по последней раскроет Свиток Манускрипта -->
+        <div id="runes-cards-container" class="taro-cards-display" style="margin-top: 15px;"></div>
+        <div id="runes-result" class="result-box hidden"></div>
+    </div>
+</div>
+<!-- ===================================================================== -->
+<!-- ⏳ 3.5 ПЕСОЧНАЯ КНИГА СУДЬБЫ (РАМЛИ)                                   -->
+<!-- ===================================================================== -->
+<div id="ramli" class="sub-tab-content hidden">
+    <div class="taro-wrapper">                     
+        <!-- 1. ВЕРХНЯЯ СВЕРНУТАЯ ПАНЕЛЬ СБРОСА -->
+        <div id="ramli-collapsed-bar" class="hidden" style="background: rgba(22, 18, 36, 0.6); border: 1px solid rgba(226, 194, 117, 0.25); border-radius: 14px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);">
+            <div id="ramli-summary-text" style="font-family: 'Philosopher', sans-serif; font-size: 14px; color: #e2daf0; font-weight: bold; letter-spacing: 0.5px;">
+                Песочная Книга • Загрузка...
+            </div>
+            <div id="ramli-reset-cross" onclick="window.executeGrimoireRamliReset()" style="cursor: pointer; font-size: 24px; color: #a0a5c0; padding: 0 5px; line-height: 1;">
+                &times;
+            </div>
+        </div>
+        <!-- 📦 2. БЛОК ВВОДА НАСТРОЕК -->
+        <div id="ramli-main-block">
+            <div class="tool-description-card">
+                <div class="tool-desc-content">
+                    <b>⏳ Песочная Книга (Рамли)</b> — древний арабский оракул геомантии. Соверши 16 касаний сакрального песка, чтобы вырастить Четырех Матерей и призвать Судью Сути.
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 15px; margin-bottom: 15px;">
+                <label for="ramli-gender" style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Укажите ваш пол:</label>
+                <select id="ramli-gender">
+                    <option value="woman">Женщина ♀️</option>
+                    <option value="man">Мужчина ♂️</option>
+                </select>
+            </div>
+            <label style="color:#a0a5c0; font-size:13px; display:block; margin-top:15px; margin-bottom:8px;">Выберите тип расклада:</label>
+            <div class="runes-spreads-grid" style="margin-bottom: 20px;">
+                <button class="taro-spread-btn active" data-ramli-spread="daily" onclick="window.switchRamliSpread('daily', this)">Совет дня</button>
+                <button class="taro-spread-btn" data-ramli-spread="business" onclick="window.switchRamliSpread('business', this)">Бизнес и дела</button>
+                <button class="taro-spread-btn" data-ramli-spread="love" onclick="window.switchRamliSpread('love', this)">Любовь и союзы</button>
+            </div>
+            <button onclick="window.startRamliRitual()" class="main-gold-btn">
+                ✦ Просеять Пески Судьбы ✦
+            </button>
+        </div>
+         <!-- 🌋 3. ЖИВОЙ АЛТАРЬ ПЕСКА РАМЛИ (ФИКСИРОВАН НА ОДНОМ ЭКРАНЕ) -->
+        <div id="ramli-altar-viewport" class="hidden" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 5px; box-sizing: border-box;">
+            <!-- А) Верхняя фиксированная зона: Чаша Оракула с Canvas-холстом -->
+            <div id="ramli-sand-bowl" style="width: 100%; height: 75px; position: relative; overflow: hidden; border-radius: 14px; background: #08060f; box-shadow: inset 0 0 20px rgba(0,0,0,0.95); border: 1px solid rgba(226,194,117,0.15); display: flex; justify-content: center; align-items: center; box-sizing: border-box;">
+                <!-- Священный Холст Песков Рамли -->
+                <canvas id="ramli-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+                <!-- Главная кнопка зачерпывания песка сверху холста -->
+                <button id="ramli-touch-btn" onclick="window.executeRamliSandTouch()" class="main-gold-btn" style="height: 36px; max-width: 220px; font-size: 13px !important; border-radius: 20px !important; z-index: 2; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.7);">
+                    Коснуться песка [0 / 16]
+                </button>
+            </div>
+            <!-- Б) Нижняя фиксированная зона: Квадратная Сетка Четырех Матерей -->
+            <div id="ramli-mothers-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: rgba(15, 11, 28, 0.4); border: 1px solid rgba(167, 139, 250, 0.15); border-radius: 16px; padding: 14px; box-shadow: 0 4px 25px rgba(0,0,0,0.4); box-sizing: border-box; width: 100%;">
+                <!-- Мать 1 -->
+                <div class="ramli-plank" id="ramli-mother-1" style="background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 10px; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <span style="color: #64748b; font-size: 11px; text-transform: uppercase;">Мать I</span>
+                    <div class="ramli-dots-container" style="display: flex; flex-direction: column; gap: 3px; align-items: center; width: 100%;"></div>
+                </div>
+                <!-- Мать 2 -->
+                <div class="ramli-plank" id="ramli-mother-2" style="background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 10px; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <span style="color: #64748b; font-size: 11px; text-transform: uppercase;">Мать II</span>
+                    <div class="ramli-dots-container" style="display: flex; flex-direction: column; gap: 3px; align-items: center; width: 100%;"></div>
+                </div>
+                <!-- Мать 3 -->
+                <div class="ramli-plank" id="ramli-mother-3" style="background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 10px; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <span style="color: #64748b; font-size: 11px; text-transform: uppercase;">Мать III</span>
+                    <div class="ramli-dots-container" style="display: flex; flex-direction: column; gap: 3px; align-items: center; width: 100%;"></div>
+                </div>
+                <!-- Мать 4 -->
+                <div class="ramli-plank" id="ramli-mother-4" style="background: #1b1329; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 10px; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+                    <span style="color: #64748b; font-size: 11px; text-transform: uppercase;">Мать IV</span>
+                    <div class="ramli-dots-container" style="display: flex; flex-direction: column; gap: 3px; align-items: center; width: 100%;"></div>
+                </div>
+            </div>
+            <!-- Золотая кнопка вызова геомантического свитка -->
+            <button id="ramli-decode-btn" onclick="window.openRamliScroll()" class="main-gold-btn hidden" style="margin-top: 5px;">
+                ✧ Расшифровать Свиток Песков ✦
+            </button>
+        </div>
+    </div>
+</div>
+ <!-- -------- 4.11 Магия камней и талисманов -------- -->
+         <!-- 💎 4.1 Магия камней и талисманов (Улучшенный интерфейс) -->
+<!-- ===================================================================== -->
+<!-- ОБНОВЛЕННАЯ РАЗМЕТКА ДЛЯ МОДУЛЯ КАМНЕЙ В index.html                   -->
+<!-- ===================================================================== -->
+<div id="stones" class="sub-tab-content">
+    <div class="tool-description-card">
+        <div class="tool-desc-content">
+            <b>💎 Камни и Талисманы <span class="info-btn" onclick="openMagicScroll('stones-guide')">ⓘ</span></b> — литотерапия и подбор природных минералов-помощников на основе вашей натальной карты и звёздных циклов.
+        </div>
+    </div>
+    <!-- Внутренние мини-вкладки уровней сложности -->
+    <div class="stone-levels-nav" style="display: flex; gap: 8px; margin: 15px 0; justify-content: center;">
+        <button class="stone-lvl-btn active" onclick="switchStoneLevel(1, this)" style="flex: 1; padding: 8px; font-size: 12px; background: rgba(226, 194, 117, 0.1); color: #e2c275; border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 8px; cursor: pointer;">🌟 По знаку</button>
+        <button class="stone-lvl-btn" onclick="switchStoneLevel(2, this)" style="flex: 1; padding: 8px; font-size: 12px; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 8px; cursor: pointer;">🪐 По целям</button>
+        <button class="stone-lvl-btn" onclick="switchStoneLevel(3, this)" style="flex: 1; padding: 8px; font-size: 12px; background: #161224; color: #a0a5c0; border: 1px solid rgba(226, 194, 117, 0.1); border-radius: 8px; cursor: pointer;">🔮 Высшая алхимия</button>
+    </div>
+    <!-- ===================================================================== -->
+<!-- НАДЕЖНАЯ РАЗМЕТКА ФОРМЫ КАМНЕЙ С КОНТЕЙНЕРОМ ЗНАКА (index.html)        -->
+<!-- ===================================================================== -->
+<div class="stone-form-box" style="background: rgba(22, 18, 36, 0.6); padding: 16px; border-radius: 12px; border: 1px solid rgba(226, 194, 117, 0.1); margin-bottom: 20px;">
+    <!-- Пол (Виден всегда) -->
+    <div class="form-group" style="margin-bottom: 12px;">
+        <label style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Укажите ваш пол:</label>
+        <select id="stone-gender" style="width: 100%; padding: 10px; background: #0d0a14; color: #fff; border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 8px; outline: none;">
+            <option value="woman">Женщина♀️</option>
+            <option value="man">Мужчина♂️</option>
+        </select>
+    </div>
+    <!-- Знак Зодиака (ОБЯЗАТЕЛЬНО С id="stone-zodiac-group") -->
+    <div class="form-group" id="stone-zodiac-group" style="margin-bottom: 12px; transition: all 0.3s ease;">
+        <label style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Выберите ваш знак зодиака:</label>
+        <select id="stone-sign" style="width: 100%; padding: 10px; background: #0d0a14; color: #fff; border: 1px solid rgba(226, 194, 117, 0.3); border-radius: 8px; outline: none;">
+            <option value="aries">Овен</option> <option value="taurus">Телец</option>
+            <option value="gemini">Близнецы</option> <option value="cancer">Рак</option>
+            <option value="leo">Лев</option> <option value="virgo">Дева</option>
+            <option value="libra">Весы</option> <option value="scorpio">Скорпион</option>
+            <option value="sagittarius">Стрелец</option> <option value="capricorn">Козерог</option>
+            <option value="aquarius">Водолей</option> <option value="pisces">Рыбы</option>
+        </select>
+    </div>
+    <!-- Контейнер для динамических полей (Цель или Поля Наталки 3-го уровня) -->
+    <div id="stone-dynamic-field" class="form-group" style="margin-bottom: 15px;">
+        <div style="text-align: center; padding: 5px; color: #a0a5c0; font-size: 13px; font-style: italic;">
+            ✧ Кристалл покровителя определится по вашему знаку зодиака.
+        </div>
+    </div>
+    <!-- Кнопка Пробуждения -->
+    <!-- Царственная золотая кнопка Пробуждения Талисмана -->
+<button onclick="requestStoneAlchemy()" class="main-gold-btn">
+    ✧ Пробудить Талисман ✧
+</button>
+</div>
+</div>
+</section>
+        <section id="screen-interactive" class="screen-content">
+            <div class="tool-description-card">
+                <div class="tool-desc-content">
+                    <b>👤 Личный Гримуар Судьбы</b> — Сохрани свои натальные данные один раз, чтобы вкладка «Мой День» и все оракулы подстраивались под тебя автоматически.
+                </div>
+            </div>
+            <div class="grimoire-card" style="background: rgba(15, 11, 28, 0.55); border: 1px solid rgba(226, 194, 117, 0.2); border-radius: 16px; padding: 20px; box-shadow: 0 4px 25px rgba(0,0,0,0.4); margin-bottom: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div>
+                        <label style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Твое имя в Гримуаре:</label>
+                        <input type="text" id="profile-name" placeholder="Например: Александр" style="border-radius: 20px !important;">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Твой пол:</label>
+                            <select id="profile-gender">
+                                <option value="woman">Женщина ♀️</option>
+                                <option value="man">Мужчина ♂️</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1.2;">
+                            <label style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Дата земного воплощения:</label>
+                            <input type="date" id="profile-date" required>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 0.8;">
+                            <label style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Время (час:мин):</label>
+                            <input type="time" id="profile-time" value="12:00" required>
+                        </div>
+                        <div class="form-group city-autocomplete-wrapper" style="flex: 1.2; margin-bottom: 0; position: relative;">
+                            <label style="color: #a0a5c0; font-size: 13px; display: block; margin-bottom: 6px;">Город твоего рождения:</label>
+                            <input type="text" class="city-input" id="profile-city-input" placeholder="Начни вводить город..." autocomplete="off">
+                            <div class="city-dropdown hidden" id="profile-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:120px; overflow-y:auto; z-index:10001; margin-top:4px;"></div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="profile-lat" value="">
+                    <input type="hidden" id="profile-lon" value="">
+                    <button type="button" class="main-gold-btn" onclick="window.saveGrimoireProfile()" style="width: 100%; margin-top: 10px;">
+                        ✦ Запечатать Свиток Данных ✦
+                    </button>
+                </div>
+            </div>
+    </main>
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-screen="screen-my-day">
+            <span class="nav-icon">✨</span>
+            <span class="nav-label">Мой День</span>
+        </button>
+        <button class="nav-btn" data-screen="screen-daily">
+            <span class="nav-icon">☀️</span>
+            <span class="nav-label">На каждый день</span>
+        </button>
+        <button class="nav-btn" data-screen="screen-astroprocessor">
+            <span class="nav-icon">🪐</span>
+            <span class="nav-label">Астропроцессор</span>
+        </button>
+        <button class="nav-btn" data-screen="screen-oracle">
+            <span class="nav-icon">🔮</span>
+            <span class="nav-label">Оракул</span>
+        </button>
+        <button class="nav-btn" data-screen="screen-interactive">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Профиль</span>
+        </button>
+    </nav>
+    <script src="natal_graph.js?v=818"></script>
+    <script src="grimoire_data.js?v=matrica818"></script>
+    <script src="main.js?v=818"></script>
+    <script src="eastern.js?v=88888"></script>
+    <script src="synastry_pdf.js?v=818"></script>
+    <script src="transits_pdf.js?v=818"></script>
+    <script src="finance_pdf.js?v=818"></script>
+    <script src="karma_pdf.js?v=818"></script>
+    <script src="natal_pdf.js?v=818"></script>
+    <script src="kids_pdf.js?v=818"></script>
+    <script src="sacred_visuals.js?v=818"></script>
+    <script src="daily_extras.js?v=818"></script>
+    <script src="oracle_extras.js?v=818"></script>
+    <script src="tile_menu.js?v=818"></script>
+    <script src="share_cards.js?v=818"></script>
+    <script src="profile_tiles.js?v=818"></script>
+    <script src="sanctum_tools.js?v=818"></script>
+    <script src="solar_pro.js?v=818"></script>
+    <script src="pdf_paywall.js?v=818"></script>
+    <script src="autofill.js?v=818"></script>
+    <script src="oracle_seals.js?v=818"></script>
+
+    
+
+
+
+<script>
+<!-- ===================================================================== -->
+<!-- 🔮 ФИНАЛЬНЫЙ АВТОНОМНЫЙ БЛОК ЛОГИКИ ИНТЕРФЕЙСА (Безопасный монолит)   -->
+<!-- ===================================================================== -->
+// 1. БЕЗОПАСНОЕ АВТОЦЕНТРИРОВАНИЕ ВСЕХ СУБВКЛАДОК БОТА
+function safeCenterTab(tab) {
+    const wrapper = tab.closest('.sub-tab-wrapper');
+    if (!wrapper) return;
+    const targetScroll = tab.offsetLeft - (wrapper.clientWidth / 2) + (tab.clientWidth / 2);
+    wrapper.scrollTo({ left: targetScroll, behavior: 'smooth' });
+}
+// Следим за кликами по субвкладкам на верхнем уровне
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.sub-tab-btn');
+    if (btn) {
+        setTimeout(() => safeCenterTab(btn), 50);
+    }
+});
+// Центрируем активные вкладки на всех экранах при старте
+setTimeout(() => {
+    document.querySelectorAll('.sub-tab-btn.active').forEach(tab => safeCenterTab(tab));
+}, 400);
+// 2. НАМЕРТВО ПРИВЯЗЫВАЕМ ВЫЗОВ ПРОМЕЖУТОЧНОГО ОКНА ГОРОСКОПА (С задержкой для анимации кнопки!)
+document.addEventListener('click', (e) => {
+    const card = e.target.closest('.zodiac-card, .horoscope-card');
+    if (!card) return;
+    // Перехватываем клик на самом взлёте, обходя любые файлы main.js
+    e.preventDefault();
+    e.stopPropagation();
+    let sign = card.getAttribute('data-sign');
+    if (!sign) {
+        const textElem = card.querySelector('.zodiac-name, p, span');
+        sign = textElem ? textElem.textContent.trim() : card.innerText.trim();
+    }
+    if (!sign) return;
+    // Запоминаем знак в скрытом инпуте нашего промежуточного окна
+    const hiddenSign = document.getElementById('selected-zodiac-sign');
+    if (hiddenSign) hiddenSign.value = sign.toLowerCase();
+    // Словарь для перевода заголовка на русский язык
+    const zodiacRu = {
+        'aries': 'Овен', 'taurus': 'Телец', 'gemini': 'Близнецы', 
+        'cancer': 'Рак', 'leo': 'Лев', 'virgo': 'Дева', 
+        'libra': 'Весы', 'scorpio': 'Скорпион', 'sagittarius': 'Стрелец', 
+        'capricorn': 'Козерог', 'aquarius': 'Водолей', 'pisces': 'Рыбы'
+    };
+    // Выводим красивый русский заголовок знака
+    const setupTitle = document.getElementById('zodiac-setup-title');
+    if (setupTitle) {
+        const signLower = sign.toLowerCase();
+        const ruName = zodiacRu[signLower] || (sign.charAt(0).toUpperCase() + sign.slice(1));
+        setupTitle.textContent = `Гороскоп: ${ruName}`;
+    }
+    // Подставляем сегодняшнюю дату по умолчанию
+    const setupDate = document.getElementById('zodiac-forecast-date');
+    if (setupDate) setupDate.valueAsDate = new Date();
+    // Добавляем карточке класс нажатия для пущей надежности визуала
+    card.style.transform = 'scale(0.95) translateY(2px)';
+    card.style.boxShadow = 'none';
+    // 🎯 КРАСИВАЯ МИКРО-ЗАДЕРЖКА (500 мс): Даем кнопке успеть отыграть 3D-просадку и свечение!
+    setTimeout(() => {
+        // Возвращаем исходный вид карточке после тапа
+        card.style.transform = '';
+        card.style.boxShadow = '';
+        // Плавно открываем промежуточное окошко настроек пола и даты
+        const setupModal = document.getElementById('zodiac-setup-modal');
+        if (setupModal) setupModal.style.display = 'flex';
+                // Инициализируем автопоиск городов для инпута модалки гороскопа
+        const zInput = document.getElementById('zodiac-city-input');
+        if (zInput && typeof initGrimoireCitySearch === 'function') {
+            initGrimoireCitySearch(zInput);
+        }
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+    }, 500); 
+}, true); // Ключевой параметр перехвата клика!
+</script>
+<!-- 🔮 Промежуточное окно настроек гороскопа -->
+<div id="zodiac-setup-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 10000; padding: 16px; box-sizing: border-box;">
+    <div style="background: #161224; color: #fff; padding: 25px; border-radius: 20px; max-width: 360px; width: 100%; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid rgba(226,194,117,0.3); font-family: 'Philosopher', sans-serif;">
+        <!-- Крестик закрытия -->
+        <span onclick="document.getElementById('zodiac-setup-modal').style.display='none'" style="position: absolute; top: 12px; right: 16px; font-size: 28px; cursor: pointer; color: #a0a5c0; transition: color 0.2s;">&times;</span>
+        <h3 id="zodiac-setup-title" style="text-align: center; margin-top: 5px; margin-bottom: 24px; color: #e2c275; font-size: 20px; letter-spacing: 0.5px;">Персональный Прогноз</h3>
+        <!-- Скрытое поле для передачи знака -->
+        <input type="hidden" id="selected-zodiac-sign">
+        <!-- Блок даты -->
+        <div style="margin-bottom: 18px;">
+            <label style="color:#a0a5c0; font-size:13px; display:block; margin-bottom:6px; letter-spacing: 0.3px;">Выберите целевую дату:</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="date" id="zodiac-forecast-date" style="flex: 1; height: 42px; padding: 0 12px; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.25); border-radius: 12px; outline: none; font-size: 14px; font-family: sans-serif;">
+                <button onclick="document.getElementById('zodiac-forecast-date').valueAsDate = new Date()" style="height: 42px; padding: 0 14px; background: rgba(147, 112, 219, 0.15); color: #cdd6f4; border: 1px solid rgba(167, 139, 250, 0.25); border-radius: 12px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: 500;">На сегодня</button>
+            </div>
+        </div>
+        <!-- Блок пола -->
+        <div style="margin-bottom: 28px;">
+            <label style="color:#a0a5c0; font-size:13px; display:block; margin-bottom:6px; letter-spacing: 0.3px;">Укажите ваш пол:</label>
+            <select id="zodiac-forecast-gender" style="width: 100%; height: 42px; padding: 0 12px; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.25); border-radius: 12px; outline: none; font-size: 14px; cursor: pointer;">
+                <option value="woman">Женщина ♀️</option>
+                <option value="man">Мужчина ♂️</option>
+            </select>
+        </div>
+                <!-- Блок города (Автокомплит) -->
+        <div class="form-group city-autocomplete-wrapper" style="margin-bottom: 22px; position: relative;">
+            <label style="color:#a0a5c0; font-size:13px; display:block; margin-bottom:6px; letter-spacing: 0.3px;">Город (необязательно):</label>
+            <input type="text" class="city-input" id="zodiac-city-input" placeholder="Начните вводить город..." autocomplete="off" style="width: 100%; height: 42px; padding: 0 12px; background: #0d0a14; color: #fff; border: 1px solid rgba(226,194,117,0.25); border-radius: 12px; outline: none; font-size: 14px;">
+            <div class="city-dropdown hidden" id="zodiac-city-dropdown" style="position:absolute; width:100%; background:#161224; border:1px solid #e2c275; border-radius:12px; max-height:150px; overflow-y:auto; z-index:10001; margin-top:4px;"></div>
+            <!-- Скрытые параметры для отправки на бэк -->
+            <input type="hidden" id="zodiac-lat" value="">
+            <input type="hidden" id="zodiac-lon" value="">
+        </div>
+        <!-- Золотая 3D Кнопка -->
+        <button onclick="executeZodiacForecast()" class="main-gold-btn">🔮 Активировать Расчет</button>
+    </div>
+</div>
+<!-- Всплывающий Магический Манускрипт Поверх Книги (Full Screen Modal) -->
+<div id="magic-bottom-sheet" class="scroll-overlay" onclick="closeMagicScroll()">
+    <div class="ancient-scroll-body" onclick="event.stopPropagation()">
+        <div class="scroll-header">
+            <span class="scroll-astral-symbol">✨📜✨</span>
+            <h3 id="sheet-title">Древний Манускрипт</h3>
+            <span class="close-scroll-cross" onclick="closeMagicScroll()">&times;</span>
+        </div>
+        <div id="sheet-text" class="scroll-inner-text">
+            Здесь развернется полное таинство...
+        </div>
+        <button class="scroll-close-btn" onclick="closeMagicScroll()">Свернуть Манускрипт ✧</button>
+    </div>
+</div>
+<!-- 🎬 ЭЛИТНЫЙ ИНТЕРАКТИВНЫЙ ЭКРАН СИМУЛЯЦИИ ВИДЕОРЕКЛАМЫ (ЗАГЛУШКА) -->
+<div id="grimoire-ad-overlay" class="hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(7, 5, 15, 0.96); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; backdrop-filter: blur(8px); transition: all 0.3s ease;">
+    <!-- Вращающаяся неоновая сфера Оракула -->
+    <div style="position: relative; width: 60px; height: 60px;">
+        <div style="position: absolute; width: 100%; height: 100%; border: 3px solid rgba(167, 139, 250, 0.1); border-top-color: #a78bfa; border-bottom-color: #e2c275; border-radius: 50%; animation: grimoireAdSpin 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;"></div>
+        <div style="position: absolute; width: 70%; height: 70%; top: 15%; left: 15%; border: 2px solid rgba(226, 194, 117, 0.05); border-left-color: #e2c275; border-radius: 50%; animation: grimoireAdSpin 0.8s linear infinite reverse;"></div>
+    </div>
+    <!-- Текстовое сопровождение алхимии медиа-потока -->
+    <div style="text-align: center; padding: 0 24px;">
+        <h3 style="color: #e2c275; font-family: 'Philosopher', sans-serif; font-size: 16px; margin: 0 0 6px 0; letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(226,194,117,0.3);">🎬 Настройка Потока Знамения...</h3>
+        <p id="grimoire-ad-countdown" style="color: #a0a5c0; font-family: monospace; font-size: 13px; margin: 0;">Трансляция эфира завершится через: 4 сек</p>
+    </div>
+    <style>
+        @keyframes grimoireAdSpin { to { transform: rotate(360deg); } }
+    </style>
+</div>
+
+<script>
+(function() {
+    const CONSENT_KEY = 'grimoire_terms_accepted_v1';
+    const cb = document.getElementById('cover-consent-checkbox');
+    if (cb && localStorage.getItem(CONSENT_KEY) === '1') {
+        cb.checked = true;
+    }
+
+    window.toggleGrimoireConsent = function(isChecked) {
+        if (isChecked) {
+            localStorage.setItem(CONSENT_KEY, '1');
+            const wrap = document.getElementById('cover-consent-wrap');
+            if (wrap) {
+                wrap.style.borderColor = 'rgba(226, 194, 117, 0.22)';
+                wrap.style.boxShadow = 'none';
+            }
+        } else {
+            localStorage.removeItem(CONSENT_KEY);
+        }
+    };
+
+    window.handleGrimoireCoverOpen = function() {
+        const box = document.getElementById('cover-consent-checkbox');
+        if (!box || !box.checked) {
+            const wrap = document.getElementById('cover-consent-wrap');
+            if (wrap) {
+                wrap.style.borderColor = '#ffe066';
+                wrap.style.boxShadow = '0 0 14px rgba(255, 224, 102, 0.45)';
+            }
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
+            }
+            return;
+        }
+        if (typeof openGrimoire === 'function') openGrimoire();
+    };
+
+    window.openGrimoireTermsModal = function() {
+        const sheet = document.getElementById('magic-bottom-sheet');
+        const title = document.getElementById('sheet-title');
+        const text = document.getElementById('sheet-text');
+        if (!sheet || !title || !text) return;
+
+        title.textContent = 'Соглашение и Политика данных';
+        text.innerHTML = [
+            '<p><b>1. Общие положения</b><br>Сервис «Книга Теней и Звёзд» предоставляет информационно-развлекательные астрологические и символические расчёты. Материалы не являются медицинской, финансовой или юридической консультацией.</p>',
+            '<p><b>2. Обработка персональных данных</b><br>Указываемые вами имя, дата, время и город рождения используются исключительно для построения астрологических расчётов, сохранения вашего профиля и формирования персональных PDF-манускриптов.</p>',
+            '<p><b>3. Цифровые услуги и энергия</b><br>Пополнение баланса кристаллов и отключение рекламы осуществляются через официальную платёжную систему Telegram Stars.</p>'
+        ].join('');
+        sheet.classList.add('active');
+        sheet.style.display = 'flex';
+    };
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2629 @@
+@import url('https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Marck+Script&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Philosopher', sans-serif !important; 
+    font-size: 15px !important; /* 🔥 УМЕНЬШИЛИ С 20px ДО КОМФОРТНЫХ 15px ДЛЯ СМАРТФОНОВ */
+    line-height: 1.5 !important;
+    background: #0f0f1a;
+    color: #ffffff;
+    margin: 0;
+    padding: 0; 
+}
+
+/* Главные контейнеры и экраны */
+/* Общий контейнер приложения превращаем в 3D-комнату для страниц */
+.app-content {
+    width: 100%;
+    max-width: 600px; /* Возвращаем строгое ограничение по ширине */
+    margin: 0 auto; /* Всегда центрируем книгу на больших экранах */
+    padding: 0 16px 80px 16px; /* Твои исходные отступы под меню */
+    
+    /* Оставляем 3D магию, но изолируем её внутри центрированного блока */
+    position: relative;
+    overflow: hidden;
+    perspective: 1500px; 
+    transform-style: preserve-3d;
+}
+/* Базовые настройки для стабильных экранов-глав */
+.screen-content {
+    display: none !important; /* Прячем неактивные экраны, чтобы обложка не блокировала вход */
+    width: 100% !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    position: relative !important;
+}
+
+/* Активный экран моментально отображается */
+.screen-content.active {
+    display: block !important;
+}
+
+/* ➡️ НАПРАВЛЕНИЕ ВПЕРЕД (Перелистываем страницу влево) */
+@keyframes flipPageLeftOut {
+    0% { transform: rotateY(0deg); opacity: 1; }
+    100% { transform: rotateY(-120deg); opacity: 0; }
+}
+@keyframes flipPageLeftIn {
+    0% { transform: rotateY(120deg); opacity: 0; }
+    100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+/* ⬅️ НАПРАВЛЕНИЕ НАЗАД (Перелистываем страницу вправо) */
+@keyframes flipPageRightOut {
+    0% { transform: rotateY(0deg); opacity: 1; }
+    100% { transform: rotateY(120deg); opacity: 0; }
+}
+@keyframes flipPageRightIn {
+    0% { transform: rotateY(-120deg); opacity: 0; }
+    100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+/* 🧭 Классы-триггеры с динамической осью вращения */
+.page-left-out { 
+    animation-name: flipPageLeftOut; 
+    display: block !important; 
+    transform-origin: left center; /* Крутится вокруг левого ребра */
+}
+.page-left-in { 
+    animation-name: flipPageLeftIn; 
+    transform-origin: right center; /* Залетает, цепляясь за правое ребро */
+}
+
+.page-right-out { 
+    animation-name: flipPageRightOut; 
+    display: block !important; 
+    transform-origin: right center; /* Крутится вокруг правого ребра */
+}
+.page-right-in { 
+    animation-name: flipPageRightIn; 
+    transform-origin: left center; /* Залетает, цепляясь за левое ребро */
+}
+
+/* Оболочка-обертка для эффекта мягкой тени скролла */
+.sub-tab-wrapper {
+    position: relative;
+    width: auto;
+    /* Выталкиваем полосу прокрутки в края экрана телефона, преодолевая padding родителя */
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-bottom: 20px;
+}
+
+.sub-tab-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 8px;
+    width: 32px;
+    background: linear-gradient(to right, rgba(15, 15, 26, 0), #0f0f1a);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Оптимизация скролла для подвкладок */
+.sub-tab-nav,
+.tab-nav {
+    scroll-behavior: smooth;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 0; /* Обнулили, так как margin теперь на wrapper */
+    /* Добавляем внутренний отступ кнопкам, чтобы они не прилипали при скролле к краям */
+    padding-left: 16px !important;
+    padding-right: 32px !important; 
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Скрываем скроллбар, но оставляем прокрутку */
+.sub-tab-nav::-webkit-scrollbar,
+.tab-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.sub-tab-btn,
+.tab-btn {
+    flex: 0 0 auto !important;
+    padding: 10px 14px;
+    background: #16213e;
+    color: #a0a5c0;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    white-space: nowrap !important;
+    transition: all 0.2s ease;
+}
+
+.sub-tab-btn.active,
+.tab-btn.active {
+    background: #6c5ce7;
+    color: #ffffff;
+    border-color: #6c5ce7;
+    box-shadow: 0 0 12px rgba(108, 92, 231, 0.6), 0 0 25px rgba(108, 92, 231, 0.3);
+    transform: scale(0.98);
+    font-weight: 600;
+}
+
+/* Контейнеры подвкладок */
+.sub-tab-content,
+.tab-content {
+    display: none;
+}
+
+.sub-tab-content.active,
+.tab-content.active {
+    display: block;
+}
+
+/* Формы и поля ввода */
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-row-coords {
+    display: flex;
+    gap: 12px;
+}
+
+.form-row-coords .form-group {
+    flex: 1;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 16px;
+    color: #b3b8d4;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    background: #16213e;
+    border: 1px solid #0f3460;
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.25s ease-in-out;
+}
+
+input:focus, select:focus {
+    border-color: #a8a2ff !important;
+    box-shadow: 0 0 12px rgba(108, 92, 231, 0.6) !important;
+}
+
+/* Автодополнение городов (Nominatim API) */
+.city-autocomplete-wrapper {
+    position: relative;
+}
+
+.city-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.city-dropdown.hidden {
+    display: none;
+}
+
+.dropdown-item {
+    padding: 10px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1px solid #0f3460;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover,
+.dropdown-item:active {
+    background: #6c5ce7;
+    color: #ffffff;
+}
+
+/* Кнопка отправки формы */
+button[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    background: #6c5ce7;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 10px;
+    transition: background 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    background: #5b4cdb;
+}
+
+/* Сетка Знаков Зодиака (Экран Гороскоп) */
+.zodiac-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.zodiac-card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 14px;
+    padding: 16px 10px;
+    text-align: center;
+    font-size: 13px;
+    cursor: pointer; /* Делает элемент кликабельным для мыши */
+    user-select: none; /* Запрещает выделение текста при клике */
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.zodiac-card:hover {
+    border-color: #6c5ce7 !important;
+    background: rgba(108, 92, 231, 0.1) !important;
+    box-shadow: 0 0 15px rgba(108, 92, 231, 0.4);
+    transform: translateY(-2px);
+}
+
+.zodiac-card:active {
+    background: rgba(108, 92, 231, 0.2) !important;
+    border-color: #a8a2ff !important;
+    box-shadow: 0 0 25px rgba(108, 92, 231, 0.8) !important;
+    transform: scale(0.96) !important;
+}
+.zodiac-card:active .zodiac-icon {
+    transform: scale(0.9);
+    filter: drop-shadow(0 2px 12px rgba(236, 72, 153, 0.7));
+}
+.zodiac-card span {
+    font-size: 24px;
+}
+
+/* Карточки Инструментов */
+.tools-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.tool-card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.tool-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.tool-card h3 {
+    margin-bottom: 6px;
+    font-size: 16px;
+}
+
+.tool-card p {
+    font-size: 16px;
+    color: #a0a5c0;
+    margin-bottom: 12px;
+}
+
+.tool-btn {
+    background: transparent;
+    border: 1px solid #6c5ce7;
+    color: #6c5ce7;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #16213e;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #0f3460;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #a0a5c0;
+    flex: 1;
+    height: 100%;
+    cursor: pointer;
+}
+
+.nav-btn .nav-icon {
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.nav-btn .nav-label {
+    font-size: 11px;
+}
+
+.nav-btn.active {
+    color: #6c5ce7;
+    font-weight: 600;
+}
+
+/* Карточки результатов */
+.result-success {
+    background: #16213e;
+    border-left: 4px solid #6c5ce7;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #ffffff;
+}
+
+.result-error {
+    background: #2a1616;
+    border-left: 4px solid #e74c3c;
+    color: #ff6b6b;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.partner-title {
+    font-size: 15px;
+    color: #6c5ce7;
+    margin-top: 14px;
+    margin-bottom: 8px;
+}
+
+/* Карточка описания под кнопками в Астропроцессоре */
+.tool-description-card {
+  margin-top: 12px;
+  margin-bottom: 15px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.tool-desc-content {
+  line-height: 1.4;
+  color: #a5b4fc;
+}
+
+.tool-desc-content b {
+  color: #ffffff;
+}
+
+/* Оболочка-обертка для эффекта мягкой тени скролла */
+.sub-tab-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Градиентная маска справа, намекающая на продолжение */
+.sub-tab-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 8px; /* Выравниваем с padding-bottom у панели */
+    width: 32px;
+    background: linear-gradient(to right,rgba(15, 15, 26, 0), #0f0f1a);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Оптимизация скролла для подвкладок */
+.sub-tab-nav,
+.tab-nav {
+    scroll-behavior: smooth;
+    padding-right: 32px !important; /* Запас места, чтобы крайний элемент не перекрывался тенью при прокрутке */
+}
+
+button[type="submit"]:active,
+.taro-btn:active {
+    box-shadow: 0 0 20px rgba(108, 92, 231, 0.8), 0 0 35px rgba(108, 92, 231, 0.4) !important;
+    transform: scale(0.96) !important;
+}
+
+/* Кнопка отправки формы */
+button[type="submit"],
+.taro-btn {
+    width: 100%;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #6c5ce7, #a8a2ff) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold !important;
+    margin-top: 10px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3) !important;
+}
+              /* ================= ТАРО МОДУЛЬ ================= */
+/* Обертка для карты в исходном(скрытом) состоянии и ее подписи снизу */
+.taro-card-wrapper {
+    position: relative; /* КРИТИЧЕСНО: чтобы дым, вспышка и подпись позиционировались относительно этой карты */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    perspective: 1000px;
+    cursor: pointer;
+    user-select: none;
+               /* НАЧАЛЬНОЕ СОСТОЯНИЕ ДО ВЫКЛАДЫВАНИЯ: */
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-tap-highlight-color: transparent; /* Убирает серый/прозрачный квадрат при тапе */
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+
+/* СОСТОЯНИЕ ПОСЛЕ ВЫКЛАДЫВАНИЯ (когда JS добавляет класс .dealt) */
+.taro-card-wrapper.dealt {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Выравниваем и отступаем весь блок управления Таро от краев */
+.taro-controls {
+    padding: 0 8px;
+    box-sizing: border-box;
+}
+
+/* Гарантируем правильный расчет ширины для дочерних элементов */
+.taro-controls p, 
+.taro-controls div {
+    box-sizing: border-box;
+}
+
+/* Аккуратный отступ для инфо-баннера сверху */
+.taro-controls > div:first-child {
+    margin-bottom: 12px;
+}
+
+.taro-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background: #6c5ce7;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.2s ease, border-color 0.2s ease;;
+}
+
+.taro-btn:active {
+    background: #1f2d54;
+    border-color: #6c5ce7;
+    transform: scale(0.98);
+}
+
+.taro-cards-display {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* Карточка Таро (рубашка/заглушка) */
+.taro-card-item {
+   width: 110px;
+    height: 175px;
+    border-radius: 12px;    
+    border: 2px solid #a78bfa;
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+    perspective: 1000px;    
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    animation: cardAppear 0.4s ease-out forwards;
+    z-index: 2; /* Карта находится выше фона и свечения */
+    -webkit-tap-highlight-color: transparent; /* Убирает серый/прозрачный квадрат при тапе */
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+     /* Внутренняя структура, которая и будет крутиться */
+.taro-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+    border-radius: 12px;
+    -webkit-tap-highlight-color: transparent; /* Убирает серый/прозрачный квадрат при тапе */
+    -webkit-touch-callout: none;
+    user-select: none;
+    /* Добавляем скрытие артефактов при вращении */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+     /* Эффект ховера */
+.taro-card-item:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(167, 139, 250, 0.4);
+}
+
+
+.taro-card-item.flipped .taro-card-inner {
+    transform: rotateY(180deg) !important;
+}
+
+            /* Обе Стороны карты */
+.taro-card-face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden !important;/* Скрывает изнанку при повороте */
+    -webkit-backface-visibility: hidden !important;
+    border-radius: 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Убирает серый/прозрачный квадрат при тапе */
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+.taro-card-back {
+    background: linear-gradient(135deg, #1e1b4b 0%, #311042 50%, #0f172a 100%);
+    border: 2px solid #a78bfa;
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.2);
+    transform: rotateY(0deg); /* Смотрит на пользователя */
+    z-index: 2;
+}
+
+.taro-card-icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+      /* Узор на рубашке */
+.taro-card-back::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px dashed rgba(167, 139, 250, 0.4);
+    border-radius: 8px;
+    pointer-events: none;
+}
+     /* Лицо карты (изначально повернуто на 180deg) */
+.taro-card-front {
+    background: #0f172a !important; /* Обязательно задаем темный непрозрачный фон */
+    transform: rotateY(180deg) !important;
+    border: 2px solid #a78bfa;
+    z-index: 1;
+}
+
+.taro-card-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+
+.taro-card-face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Название карты снизу */
+.taro-card-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #f3e8ff;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 2;
+}
+.taro-interpretation h3 {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 20px;
+    color: #e2e8f0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Узор на рубашке (условная магическая рамка) */
+.taro-card-item::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px dashed rgba(167, 139, 250, 0.4);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.interpretation-text {
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap; /* Сохраняет переводы строк и абзацы */
+    color: #ffffff;
+}
+
+/* Название карты СНИЗУ под карточкой */
+.taro-card-label {
+    position: relative;
+    font-size: 13px;
+    font-weight: 600;
+    
+    /* Золотистый цвет и мягкое неоновое сияние */
+    color: #e2c275 !important;
+    text-shadow: 0 0 8px rgba(226, 194, 117, 0.4), 0 2px 4px rgba(0, 0, 0, 0.8);
+    
+    text-align: center;
+    max-width: 120px;
+    line-height: 1.2;
+    
+    /* Плавное проявление */
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 4;
+}
+
+/* Класс проявления названия после переворота */
+.taro-card-label.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.loading-spinner {
+    color: #a0a5c0;
+    font-style: italic;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Пример сочного неонового свечения для активных кнопок */
+.tab-btn.active, .sub-tab-btn.active, .taro-btn:active {
+    background: #6c5ce7; /* твой основной цвет */
+    color: #ffffff;
+    border-color: #a8a2ff;
+    
+    /* Вот оно — интенсивное сияние (box-shadow) */
+    box-shadow: 0 0 12px rgba(108, 92, 231, 0.6), 
+                0 0 25px rgba(108, 92, 231, 0.3);
+    
+    /* Эффект легкого увеличения/нажатия */
+    transform: scale(0.98);
+}
+
+/* Плавность для всех анимаций */
+.tab-btn, .sub-tab-btn, .taro-btn {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+
+/* Скрываем уродливую полосу прокрутки внизу, чтобы всё выглядело как в дорогом приложении */
+.screens-slider::-webkit-scrollbar {
+    display: none;
+}
+
+/* Базовые стили для карточек (чтобы анимация была плавной) */
+.zodiac-card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 13px;
+    color: #ffffff;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.zodiac-icon {
+    width: 100% !important;   /* Заставляем webp-картинку слушаться размеров родительской ячейки */
+    height: 100% !important;  /* Заставляем webp-картинку слушаться размеров родительской ячейки */
+    object-fit: contain !important;
+    border-radius: 14px;
+    filter: drop-shadow(0 4px 8px rgba(168, 85, 247, 0.35));
+    transition: transform 0.2s ease, filter 0.2s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* Сияние при наведении мышки (для компьютеров) */
+.zodiac-card:hover {
+    border-color: #6c5ce7 !important;
+    background: rgba(108, 92, 231, 0.1) !important;
+    /* Мягкое фиолетовое свечение наружу */
+    box-shadow: 0 0 15px rgba(108, 92, 231, 0.4);
+    transform: translateY(-2px); /* Карточка красиво приподнимается */
+}
+
+/* Интенсивное сияние при НАЖАТИИ (для телефонов и кликов мышкой) */
+.zodiac-card:active {
+    background: rgba(108, 92, 231, 0.2) !important;
+    border-color: #a8a2ff !important;
+    /* Мощная неоновая вспышка в момент клика */
+    box-shadow: 0 0 25px rgba(108, 92, 231, 0.8), 
+                0 0 10px rgba(255, 255, 255, 0.3) !important;
+    transform: scale(0.96) translateY(0px) !important; /* Карточка слегка вдавливается внутрь */
+}
+
+/* 1. Стиль для кнопок "Рассчитать", "Карта дня" и других активных кнопок */
+.taro-btn, 
+button[type="submit"] {
+    background: linear-gradient(135deg, #6c5ce7, #a8a2ff) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 12px 24px !important;
+    font-weight: bold !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3) !important;
+}
+
+/* Интенсивное неоновое СИЯНИЕ при клике/нажатии на эти кнопки */
+.taro-btn:active, 
+button[type="submit"]:active,
+.sub-tab-content button:active {
+    box-shadow: 0 0 20px rgba(108, 92, 231, 0.8), 
+                0 0 35px rgba(108, 92, 231, 0.4) !important;
+    transform: scale(0.96) !important; /* эффект вдавливания */
+}
+
+/* 2. Стиль для ПОЛЕЙ ВВОДА ДАТЫ и времени (чтобы они тоже сияли, когда на них нажимаешь) */
+input[type="date"], 
+input[type="time"], 
+input[type="text"] {
+    background: #16213e !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(108, 92, 231, 0.3) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    outline: none !important;
+    transition: all 0.25s ease-in-out !important;
+}
+
+/* Интенсивная подсветка поля ввода, когда пользователь выбирает дату */
+input[type="date"]:focus, 
+input[type="time"]:focus, 
+input[type="text"]:focus {
+    border-color: #a8a2ff !important;
+    /* Мягкое фиолетовое неоновое свечение ИЗНУТРИ и снаружи поля */
+    box-shadow: 0 0 12px rgba(108, 92, 231, 0.6) !important;
+}
+
+
+/* Показываем только активную подвкладку */
+#screen-daily .sub-tab-content.active {
+    display: block !important;
+}
+
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.taro-card-item {
+    animation: cardAppear 0.4s ease-out forwards;
+}
+
+       /* ================= ЭФФЕКТЫ ДЫМА И ВСПЫШКИ ================= */
+
+     /* Слой неонового свечения снизу */
+.taro-card-glow {
+    position: absolute;
+    bottom: -12px;           /* Смещаем свечение под нижний край карты */
+    inset: -5px;
+    background: radial-gradient(ellipse at center, rgba(168, 139, 250, 0.7) 0%, rgba(108, 92, 231, 0.4) 50%, transparent 80%);
+    filter: blur(10px);
+    opacity: 0.35;
+    transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+    border-radius: 50%; /* Мягкое свечение в обычном состоянии */
+    pointer-events: none;
+    z-index: 0; /* Держим за карточкой */
+}
+
+           /* Проявление подсветки после выкладывания карты */
+.taro-card-wrapper.dealt .taro-card-glow {
+    opacity: 0.5;
+}
+
+        /* Слой мистического дыма поверх закрытой карты */
+.taro-card-smoke {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 175px; /* Строго по высоте карты */
+    background: radial-gradient(circle at 50% 50%, rgba(168, 162, 255, 0.3), transparent 80%),
+                radial-gradient(circle at 70% 60%, rgba(129, 140, 248, 0.35) 0%, transparent 50%);
+    filter: blur(12px);
+    border-radius: 50%;
+    z-index: 10;/* Поднимаем над картой */
+    pointer-events: none;/* Пропускает клики на карту */
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    animation: smokeMove 4s ease-in-out infinite alternate;
+}
+
+/* Гашение дыма при перевороте */
+.taro-card-wrapper:has(.taro-card-item.flipped) .taro-card-smoke,
+.taro-card-item.flipped ~ .taro-card-smoke {
+    opacity: 0;
+}
+
+/* Движение дыма */
+@keyframes smokeMove {
+    0% {
+        transform: scale(0.9) translateY(0) rotate(0deg);
+        filter: blur(10px);
+    }
+    50% {
+        transform: scale(1.15) translateY(-8px) rotate(4deg);
+        filter: blur(14px);
+    }
+    100% {
+        transform: scale(1.0) translateY(-4px) rotate(-4deg);
+        filter: blur(12px);
+    }
+}
+
+/* Импульс дыма */
+@keyframes smokePulse {
+    0% { transform: scale(0.98); opacity: 0.4; }
+    100% { transform: scale(1.02); opacity: 0.8; }
+}
+
+        /* Класс вспышки на ребре ($90^\circ$) */
+.taro-card-wrapper.edge-flash .taro-card-glow {
+    opacity: 1 !important;
+    transform: scale(1.4) translateY(-5px) !important;
+    background: radial-gradient(ellipse at center, rgba(236, 72, 153, 1) 0%, rgba(168, 139, 250, 0.9) 45%, transparent 80%) !important;
+    box-shadow: 0 0 25px rgba(168, 162, 255, 0.9), 0 0 45px rgba(108, 92, 231, 0.8);
+}
+
+/* ================= КРАСИВАЯ КАРТОЧКА РЕЗУЛЬТАТА ================= */
+
+/* Основной контейнер результатов Таро / Астрологии */
+#taro-result,
+.result-box {
+    /* 1. Делаем подложку узкой и центрируем её */
+    max-width: 92%; 
+    margin: 20px auto 0 auto;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(20, 18, 41, 0.85) 0%, rgba(13, 11, 26, 0.95) 100%);
+    border: 1px solid rgba(168, 162, 255, 0.25);
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.1),
+                0 0 20px rgba(108, 92, 231, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #e2e8f0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Заголовок «Результат расклада» */
+.taro-interpretation h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #e2c275 !important; /* Наш золотой цвет */
+    text-shadow: 0 0 10px rgba(226, 194, 117, 0.3);
+    border-bottom: 1px solid rgba(226, 194, 117, 0.2);
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none !important; /* Сбрасываем старый серый фон */
+    box-shadow: none !important;
+}
+
+/* Название карты внутри результата */
+.interpretation-text h4,
+.interpretation-text strong:first-child {
+    color: #a78bfa;
+    font-size: 15px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Абзацы текста (Прямое значение, Любовь, Работа, Совет) */
+.interpretation-text p,
+.interpretation-text div {
+    line-height: 1.5;
+    font-size: 13.5px;
+    color: #cbd5e1;
+    margin-bottom: 10px;
+}
+
+/* Выделенный жирный текст */
+.interpretation-text strong {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* ================= РУНИЧЕСКИЙ МОДУЛЬ ================= */
+/* Контейнер карточки руны */
+.rune-card-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    perspective: 1000px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.rune-card-wrapper.dealt {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Физический блок карточки */
+.rune-card-item {
+    width: 90px;
+    height: 140px;
+    border-radius: 12px;
+    border: 2px solid #a78bfa;
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+    perspective: 1000px;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    z-index: 2;
+}
+
+/* Внутренняя часть с анимацией переворота */
+.rune-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+    border-radius: 12px;
+}
+
+/* Состояние перевернутой карточки (добавляется класс flipped через JS) */
+.rune-card-wrapper.flipped .rune-card-inner,
+.rune-card-item.flipped .rune-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* Лицевая и обратная стороны */
+.rune-card-face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* Рубашка руны */
+.rune-card-back {
+    background: linear-gradient(135deg, #1e1b4b 0%, #311042 50%, #0f172a 100%);
+    border: 2px solid #a78bfa;
+}
+
+.rune-card-back::before {
+    content: 'ᚠ';
+    font-size: 32px;
+    color: rgba(167, 139, 250, 0.5);
+}
+
+/* Лицевая сторона с картинкой */
+.rune-card-front {
+    background: #0f172a;
+    transform: rotateY(180deg);
+    border: 2px solid #a78bfa;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.rune-card-front img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.6));
+}
+
+/* Подпись под карточкой */
+.rune-card-label {
+    font-family: 'Cinzel Decorative', serif !important;
+    font-size: 11px !important;
+    color: #e2c275 !important;
+    text-shadow: 0 0 8px rgba(226, 194, 117, 0.4);
+    text-align: center;
+    margin-top: 6px;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.rune-card-label.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gender-btn {
+    background: #16213e;
+    color: #a0a5c0;
+    border: 1px solid #0f3460;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: 'Philosopher', sans-serif;
+    transition: all 0.25s ease;
+}
+
+.gender-btn.active {
+    background: #6c5ce7;
+    color: #ffffff;
+    border-color: #a8a2ff;
+    box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+    font-weight: 600;
+}
+
+/* ================= ОБЛОЖКА ГРИМУАРА (3D) ================= */
+
+/* Общий контейнер, который перекрывает весь экран */
+.book-cover-screen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: radial-gradient(circle at center, #1b152b 0%, #0a0812 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    
+    /* 🧙‍♂️ ВОТ ОНА — МАГИЯ ГЛУБИНЫ ОБЪЁМА! */
+    perspective: 1200px; 
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+}
+/* Дизайн самой обложки с золотой рамкой */
+.grimoire-cover-design {
+    width: 100%;
+    max-width: 600px; /* Сделали её ровно 600px, как и .app-content */
+    height: 85vh;
+    background: linear-gradient(135deg, #181124 0%, #0e0917 100%);
+    border: 3px solid #e2c275;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 
+                inset 0 0 30px rgba(108, 92, 231, 0.2);
+    display: flex;
+
+    /* 🧭 Указываем, что обложка — это единый 3D объект, который крутится СТРОГО от левого края */
+    transform-origin: left center;
+    transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.gold-frame {
+    flex: 1;
+    border: 1px dashed rgba(226, 194, 117, 0.4); /* Внутренняя рамочка */
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Стили текста на обложке */
+.cover-cosmic-icon {
+    font-size: 24px !important;
+    margin-bottom: 20px;
+    letter-spacing: 5px;
+}
+
+.book-title {
+    font-family: 'Cinzel Decorative', serif !important;
+    font-size: 28px !important;
+    color: #ffe066 !important;
+    text-shadow: 0 0 15px rgba(226, 194, 117, 0.6) !important;
+    line-height: 1.3 !important;
+    margin-bottom: 20px;
+}
+
+.magic-seal {
+    font-size: 45px !important;
+    margin: 15px 0;
+    filter: drop-shadow(0 0 15px rgba(167, 139, 250, 0.6));
+}
+
+.book-subtitle {
+    color: #94a3b8 !important;
+    font-size: 16px !important;
+    font-style: italic;
+    margin-bottom: 40px;
+}
+
+/* Анимация мерцания для надписи «Тапните...» */
+.tap-to-open {
+    color: #e2c275 !important;
+    font-size: 14px !important;
+    letter-spacing: 1px;
+    animation: magicBlink 2s infinite alternate;
+}
+
+@keyframes magicBlink {
+    0% { opacity: 0.3; text-shadow: 0 0 2px rgba(226, 194, 117, 0); }
+    100% { opacity: 1; text-shadow: 0 0 8px rgba(226, 194, 117, 0.8); }
+}
+
+/* КЛАСС ДЛЯ JS: Анимация открытия книги */
+.book-cover-screen.opened {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease 0.9s; /* Исчезает в самом конце анимации */
+}
+
+/* Изменяем класс открытия: теперь крутится именно сама обложка, а не весь экран! */
+.book-cover-screen.opened .grimoire-cover-design {
+    transform: rotateY(-130deg); /* Распахивается вглубь экрана влево! */
+    opacity: 0;
+}
+/* ================= НАСТРОЙКА МАГИЧЕСКИХ ИСКР И НЕОНА ДЛЯ ТЕКУЩЕЙ ВЕРСИИ ================= */
+
+/* ➡️ При перелистывании ВПЕРЕД (страница улетает влево) */
+@keyframes flipPageLeftOut {
+    0% { 
+        transform: rotateY(0deg); 
+        opacity: 1;
+        box-shadow: 0 0 0 rgba(108, 92, 231, 0);
+    }
+    30% {
+        /* На 30% поворота, когда открывается щель с артефактом, заливаем всё неоном и золотом */
+        box-shadow: 25px 0 50px rgba(108, 92, 231, 0.8), -10px 0 30px rgba(226, 194, 117, 0.5);
+        background: linear-gradient(90deg, rgba(226, 194, 117, 0.12), transparent);
+    }
+    100% { 
+        transform: rotateY(-120deg); 
+        opacity: 0;
+        box-shadow: 0 0 0 rgba(108, 92, 231, 0);
+    }
+}
+
+@keyframes flipPageLeftIn {
+    0% { transform: rotateY(120deg); opacity: 0; }
+    40% { box-shadow: -25px 0 50px rgba(108, 92, 231, 0.8), 10px 0 30px rgba(226, 194, 117, 0.5); }
+    100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+/* ⬅️ При перелистывании НАЗАД (страница улетает вправо) */
+@keyframes flipPageRightOut {
+    0% { transform: rotateY(0deg); opacity: 1; }
+    30% {
+        box-shadow: -25px 0 50px rgba(108, 92, 231, 0.8), 10px 0 30px rgba(226, 194, 117, 0.5);
+        background: linear-gradient(-90deg, rgba(226, 194, 117, 0.12), transparent);
+    }
+    100% { transform: rotateY(120deg); opacity: 0; }
+}
+
+@keyframes flipPageRightIn {
+    0% { transform: rotateY(-120deg); opacity: 0; }
+    40% { box-shadow: 25px 0 50px rgba(108, 92, 231, 0.8), -10px 0 30px rgba(226, 194, 117, 0.5); }
+    100% { transform: rotateY(0deg); opacity: 1; }
+}
+
+/* 🔥 Фикс приоритета слоев: заставляем летящие страницы правильно перекрывать друг друга */
+.page-left-out, .page-right-out { 
+    z-index: 5 !important;
+    overflow: hidden !important; /* Насильно прячем внутренности улетающего листа */
+}
+.page-left-in, .page-right-in { 
+    z-index: 10 !important; /* Целевой лист летит СТРОГО ПОВЕРХ старого, закрывая баг */
+}
+
+/* Полное глушение изнанки внутренних элементов Таро на время анимации */
+.page-left-out *, .page-left-in *, .page-right-out *, .page-right-in * {
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
+
+/* ================= МАГИЧЕСКИЙ СВИТОК (BOTTOM SHEET) ================= */
+
+/* Полупрозрачный фон-затемнение */
+.bottom-sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 8, 18, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 10000; /* Поверх нижнего меню и обложки */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    display: flex;
+    align-items: flex-end; /* Прижимаем окно к самому низу */
+}
+
+/* Класс активации для фона */
+.bottom-sheet-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Сам свиток (модальное окно) */
+.bottom-sheet-scroll {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #161224 0%, #0d0a14 100%);
+    border-top: 3px solid #e2c275; /* Золотое верхнее ребро свитка */
+    border-left: 1px solid rgba(226, 194, 117, 0.2);
+    border-right: 1px solid rgba(226, 194, 117, 0.2);
+    border-radius: 20px 20px 0 0; /* Закругляем только верхние углы */
+    padding: 24px 20px;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(108, 92, 231, 0.15);
+    
+    /* Начальное состояние: свиток полностью спрятан под экраном */
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Открытое состояние свитка */
+.bottom-sheet-overlay.active .bottom-sheet-scroll {
+    transform: translateY(0); /* Плавно выезжает наверх */
+}
+
+/* Декоративная линия для свайпа закрытия */
+.sheet-drag-line {
+    width: 40px;
+    height: 4px;
+    background: rgba(226, 194, 117, 0.3);
+    border-radius: 2px;
+    margin: 0 auto 20px auto;
+    cursor: pointer;
+}
+
+/* Кнопка «Закрыть» */
+.sheet-close-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #251b40 0%, #161026 100%) !important;
+    color: #e2c275 !important;
+    border: 1px solid rgba(226, 194, 117, 0.4) !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+    margin-top: 20px;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.sheet-close-btn:active {
+    background: rgba(226, 194, 117, 0.1) !important;
+    transform: scale(0.98) !important;
+}
+
+/* Золотая иконка инфо «ⓘ» рядом с терминами */
+.info-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #e2c275 !important;
+    font-size: 16px !important;
+    margin-left: 6px;
+    cursor: pointer;
+    transition: transform 0.2s ease, text-shadow 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.info-btn:active {
+    transform: scale(0.85);
+    text-shadow: 0 0 10px #e2c275;
+}
+
+/* ================= МАГИЧЕСКИЙ МАНУСКРИПТ ПОВЕРХ КНИГИ ================= */
+
+/* Полноэкранная темная вуаль */
+.scroll-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(7, 5, 12, 0.9); /* Глубокий темный фон, изолирующий от расчетов сзади */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10005; /* Абсолютный приоритет — выше нижнего меню и страниц */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+/* Активация вуали */
+.scroll-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Физическое тело древнего свитка */
+.ancient-scroll-body {
+    width: 100%;
+    max-width: 500px; /* Аккуратный размер, как у дорогой книги */
+    max-height: 80vh; /* Занимает большую часть экрана, но оставляет рамки */
+    background: linear-gradient(135deg, #181329 0%, #0d0a14 100%);
+    border: 2px solid #e2c275; /* Полная золотая рамка */
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 
+                inset 0 0 30px rgba(108, 92, 231, 0.2);
+    display: flex;
+    flex-direction: column;
+    
+    /* Эффект появления: свиток изящно увеличивается из центра */
+    transform: scale(0.9) translateY(-10px);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Эффект развертывания при активации */
+.scroll-overlay.active .ancient-scroll-body {
+    transform: scale(1) translateY(0);
+}
+
+/* Шапка манускрипта */
+.scroll-header {
+    text-align: center;
+    position: relative;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(226, 194, 117, 0.3);
+    flex-shrink: 0;
+}
+
+.scroll-astral-symbol {
+    font-size: 16px !important;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* Кнопка-крестик в углу */
+.close-scroll-cross {
+    position: absolute;
+    top: -5px;
+    right: 0;
+    font-size: 26px !important;
+    color: rgba(226, 194, 117, 0.6);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.close-scroll-cross:active {
+    color: #ffe066;
+}
+
+/* 📜 Внутренний скролл для монументального текста */
+.scroll-inner-text {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 8px;
+    font-size: 14.5px !important;
+    line-height: 1.6 !important;
+    color: #cbd5e1 !important;
+}
+
+.scroll-inner-text p {
+    margin-bottom: 14px;
+}
+
+.scroll-inner-text b, 
+.scroll-inner-text strong {
+    color: #ffe066; /* Выделение важных мыслей золотом */
+}
+
+/* Красивый тонкий скроллбар манускрипта */
+.scroll-inner-text::-webkit-scrollbar {
+    width: 4px;
+}
+.scroll-inner-text::-webkit-scrollbar-thumb {
+    background: rgba(226, 194, 117, 0.4);
+    border-radius: 2px;
+}
+
+/* Кнопка закрытия внизу */
+.scroll-close-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #251b40 0%, #161026 100%) !important;
+    color: #e2c275 !important;
+    border: 1px solid rgba(226, 194, 117, 0.4) !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+    margin-top: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease !important;
+}
+.scroll-close-btn:active {
+    transform: scale(0.98) !important;
+    background: rgba(226, 194, 117, 0.1) !important;
+}
+
+/* ================= МАГИЧЕСКИЙ МАНУСКРИПТ ПОВЕРХ КНИГИ ================= */
+
+/* Полноэкранная темная вуаль */
+.scroll-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(7, 5, 12, 0.9); /* Глубокий темный фон, изолирующий от расчетов сзади */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10005; /* Абсолютный приоритет — выше нижнего меню и страниц */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+/* Активация вуали */
+.scroll-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Физическое тело древнего свитка */
+.ancient-scroll-body {
+    width: 100%;
+    max-width: 500px; /* Аккуратный размер, как у дорогой книги */
+    max-height: 80vh; /* Занимает большую часть экрана, но оставляет рамки */
+    background: linear-gradient(135deg, #181329 0%, #0d0a14 100%);
+    border: 2px solid #e2c275; /* Полная золотая рамка */
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 
+                inset 0 0 30px rgba(108, 92, 231, 0.2);
+    display: flex;
+    flex-direction: column;
+    
+    /* Эффект появления: свиток изящно увеличивается из центра */
+    transform: scale(0.9) translateY(-10px);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Эффект развертывания при активации */
+.scroll-overlay.active .ancient-scroll-body {
+    transform: scale(1) translateY(0);
+}
+
+/* Шапка манускрипта */
+.scroll-header {
+    text-align: center;
+    position: relative;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(226, 194, 117, 0.3);
+    flex-shrink: 0;
+}
+
+.scroll-astral-symbol {
+    font-size: 16px !important;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* Кнопка-крестик в углу */
+.close-scroll-cross {
+    position: absolute;
+    top: -5px;
+    right: 0;
+    font-size: 26px !important;
+    color: rgba(226, 194, 117, 0.6);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.close-scroll-cross:active {
+    color: #ffe066;
+}
+
+/* 📜 Внутренний скролл для монументального текста */
+.scroll-inner-text {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 8px;
+    font-size: 14.5px !important;
+    line-height: 1.6 !important;
+    color: #cbd5e1 !important;
+}
+
+.scroll-inner-text p {
+    margin-bottom: 14px;
+}
+
+.scroll-inner-text b, 
+.scroll-inner-text strong {
+    color: #ffe066; /* Выделение важных мыслей золотом */
+}
+
+/* Красивый тонкий скроллбар манускрипта */
+.scroll-inner-text::-webkit-scrollbar {
+    width: 4px;
+}
+.scroll-inner-text::-webkit-scrollbar-thumb {
+    background: rgba(226, 194, 117, 0.4);
+    border-radius: 2px;
+}
+
+/* Кнопка закрытия внизу */
+.scroll-close-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #251b40 0%, #161026 100%) !important;
+    color: #e2c275 !important;
+    border: 1px solid rgba(226, 194, 117, 0.4) !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+    margin-top: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease !important;
+}
+.scroll-close-btn:active {
+    transform: scale(0.98) !important;
+    background: rgba(226, 194, 117, 0.1) !important;
+}
+
+/* ===================================================================== */
+/* 🌃 СОННИК: ХИРУРГИЧЕСКОЕ ВЫРАВНИВАНИЕ КНОПКИ БЕЗ НАПЛЫВА               */
+/* ===================================================================== */
+
+/* ===================================================================== */
+/* 🛡️ АННИГИЛЯЦИЯ ПАРАЗИТНОЙ ТЕНИ И ЗАТЕНЕНИЯ В ОРАКУЛЕ                  */
+/* ===================================================================== */
+.taro-wrapper, 
+.sub-tab-content:has(.taro-wrapper) {
+    overflow: visible !important; /* Насильно выпускаем сетку кнопок наружу */
+}
+
+/* Выжигаем тень скрытых блоков результатов, пока они имеют класс .hidden */
+.result-box.hidden, 
+#taro-result.hidden, 
+#runes-result.hidden {
+    display: none !important;
+    box-shadow: none !important;  /* Полное обнуление наплыва тени справа */
+    margin: 0 !important;
+    padding: 0 !important;
+}
+/* ===================================================================== */
+/* 🛡️ ВЫЖИГАНИЕ СИСТЕМНОЙ МАСКИ ИЗНАНКИ ДЛЯ ЭКРАНА ОРАКУЛА              */
+/* ===================================================================== */
+#screen-oracle {
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important; /* Уничтожаем серую маску */
+    transform: none !important;
+    perspective: none !important;
+    overflow: visible !important;
+}
+
+/* ===================================================================== */
+/* 💥 ФИНАЛЬНАЯ АННИГИЛЯЦИЯ ПРАВОГО ЗАТЕНЕНИЯ В ОРАКУЛЕ                 */
+/* ===================================================================== */
+#screen-oracle .taro-wrapper {
+    width: calc(100% + 16px) !important; /* Расширяем обёртку ровно на величину родительского зажима */
+    margin-right: -16px !important;      /* Компенсируем padding родителя справа */
+    padding-right: 16px !important;      /* Возвращаем мягкий внутренний отступ для баланса */
+    overflow: visible !important;        /* Насильно выпускаем контент из 3D-ловушки */
+}
+/* ===================================================================== */
+/* 🛡️ ХИРУРГИЧЕСКОЕ ИЗОЛИРОВАНИЕ ЗАТЕНИТЕЛЯ ПОДВКЛАДОК                  */
+/* ===================================================================== */
+/* Гасим глобальный наплыв маски на весь экран Оракула */
+.sub-tab-wrapper::after {
+    display: none !important;
+}
+
+/* Направляем маску СТРОГО на верхнюю навигационную панель, где ей и место */
+.sub-tab-nav {
+    position: relative !important;
+}
+.sub-tab-nav::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 32px !important;
+    background: linear-gradient(to right, rgba(15, 15, 26, 0), #0f0f1a) !important;
+    pointer-events: none !important;
+    z-index: 99 !important;
+}
+
+/* ===================================================================== */
+/* 💎 ПРЕМИАЛЬНЫЙ 3D-ОБЪЕМ КНОПОК И ВКЛАДОК В РЕЖИМЕ ПОКОЯ               */
+/* ===================================================================== */
+
+/* 1. Превращаем плоские карточки раскладов Оракула в объемные плашки */
+.taro-spreads-grid .taro-spread-btn, 
+.runes-spreads-grid .taro-spread-btn {
+    border-top: 1px solid rgba(167, 139, 250, 0.4) !important;   /* Светлая фаска на верхнем ребре */
+    border-bottom: 2px solid rgba(10, 8, 20, 0.8) !important;     /* Темное плотное основание */
+    /* Слоистая тень: жесткий сдвиг вниз для объема + мягкое неоновое свечение вокруг */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.6), 
+                0 0 15px rgba(167, 139, 250, 0.08) !important;
+}
+
+/* 2. Даем благородную выпуклость верхним навигационным субвкладкам */
+.sub-tab-btn {
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 3. Когда подвкладка становится активной — она вспыхивает сочным объемом */
+.sub-tab-btn.active {
+    border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 15px rgba(108, 92, 231, 0.5), 
+                0 4px 10px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 4. Превращаем большие золотые кнопки в монолитные выпуклые слитки */
+button[onclick*="Spread"], button[type="submit"], .taro-btn {
+    border-top: 1.5px solid rgba(255, 255, 255, 0.4) !important; /* Мощный световой блик */
+    border-bottom: 3px solid rgba(139, 110, 39, 0.8) !important;  /* Глубокая золотая подложка */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7), 
+                0 0 20px rgba(226, 194, 117, 0.15) !important;
+}
+
+/* ===================================================================== */
+/* 🪐 СИНХРОНИЗАЦИЯ 3D-АНИМАЦИИ И СБОРКА ЧИСТОГО ОБЪЕМА КНОПОК          */
+/* ===================================================================== */
+
+.screen-content {
+    position: absolute !important; /* Накладываем экраны в одну точку, чтобы убрать провалы */
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    opacity: 0 !important; /* Скрытый экран полностью прозрачен */
+    pointer-events: none !important; /* Скрытый экран нельзя случайно кликнуть */
+    transform: rotateY(15deg) scale(0.98) !important; /* Красивый легкий разворот страницы в 3D */
+    transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important; /* Быстрый и плавный переход */
+    transform-style: preserve-3d !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+}
+
+/* Активный экран плавно материализуется прямо перед глазами */
+.screen-content.active {
+    position: relative !important; /* Возвращаем в поток, чтобы работал скролл */
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: rotateY(0deg) scale(1) !important;
+}
+
+.sub-tab-wrapper, .sub-tab-nav {
+    /* Запрещаем шапке жить отдельной жизнью во время поворота экрана */
+    transform-style: preserve-3d !important;
+    backface-visibility: hidden !important;
+    z-index: 10 !important;
+}
+
+/* 2. Жестко пробиваем 3D-объем кнопок раскладов (Таро/Руны) через градиент фаски */
+.taro-spreads-grid .taro-spread-btn, 
+.runes-spreads-grid .taro-spread-btn,
+.taro-spread-btn {
+    background: linear-gradient(180deg, rgba(147, 112, 219, 0.25) 0%, rgba(75, 0, 130, 0.4) 100%) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.25) !important;   /* Яркий световой блик на ребре */
+    border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.4) !important;
+    border-bottom: 3px solid rgba(15, 10, 30, 0.9) !important;    /* Толстая физическая подложка снизу */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.55), 
+                inset 0 1px 0px rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px !important;
+}
+
+/* ===================================================================== */
+/* 🔮 ГРИМУАР: ФИНАЛЬНЫЙ ПРЕМИАЛЬНЫЙ 3D-БАЛАНС ЦВЕТОВ И ОБЪЕМА            */
+/* ===================================================================== */
+
+/* 1. ОСТАВЛЯЕМ ВЫБОР РАСКЛАДОВ РОДНЫМИ ФИОЛЕТОВЫМИ (но делаем сочнее) */
+.taro-spread-btn, 
+.runes-spreads-grid button, 
+.advice-mode-tabs button {
+    background: linear-gradient(180deg, rgba(147, 112, 219, 0.25) 0%, rgba(75, 0, 130, 0.4) 100%) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.25) !important;   /* Светлая фаска сверху */
+    border-bottom: 3px solid rgba(15, 10, 30, 0.9) !important;    /* Толстое основание */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5), 
+                inset 0 1px 0px rgba(255, 255, 255, 0.15) !important;
+    border-radius: 12px !important;
+}
+
+/* 2. ИДЕАЛЬНЫЙ ОБЪЕМ ДЛЯ ВЕРХНИХ СУБВКЛАДОК (Твой выбор, бро!) */
+.sub-tab-btn {
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5) !important;
+}
+.sub-tab-btn.active {
+    border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 15px rgba(108, 92, 231, 0.4), 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 3. ВСЕ КНОПКИ "РАССЧИТАТЬ" И ДЕЙСТВИЯ — СТРОГО ЗОЛОТЫЕ СЛИТКИ */
+button[onclick*="Spread"], 
+button[type="submit"], 
+.taro-btn, 
+button[onclick*="calculate"],
+button[onclick*="Calculate"] {
+    background: linear-gradient(180deg, #e2c275 0%, #b3934b 100%) !important; /* Насыщенное благородное золото */
+    color: #121019 !important; /* Темный эзотерический текст для читаемости */
+    font-weight: bold !important;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.5) !important;  /* Мощный световой блик */
+    border-bottom: 3.5px solid rgba(90, 70, 25, 0.9) !important;   /* Тяжелое основание слитка */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6), 
+                0 0 20px rgba(226, 194, 117, 0.2) !important;
+    border-radius: 12px !important;
+}
+
+/* ===================================================================== */
+/* 💎 ГРИМУАР: ТОТАЛЬНЫЙ 3D-ОБЪЕМ ДЛЯ ВСЕХ ЭЛЕМЕНТОВ ИНТЕРФЕЙСА          */
+/* ===================================================================== */
+
+/* --------------------------------------------------------------------- */
+/* 🔮 1. КОСМИЧЕСКИЙ ЛАВАНДОВЫЙ НЕОН (Выбор раскладов и Интерактив)      */
+/* --------------------------------------------------------------------- */
+.taro-spreads-grid button,
+.taro-spreads-grid a,
+.taro-spread-btn,
+.runes-spreads-grid button,
+.runes-spreads-grid a,
+.runes-spread-btn,
+.advice-mode-tabs button,
+.astro-influence-card button,
+div[class*="tabs"] button:not(.gold-btn):not(.main-gold-btn),
+
+#screen-interactive .stone-lvl-btn,
+.interactive-tab-btn,
+#screen-oracle .taro-spreads-grid *,
+#screen-oracle .runes-spreads-grid * {
+    background: linear-gradient(180deg, #9f92ec 0%, #7968e2 100%) !important;
+    background-color: #7968e2 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    opacity: 1 !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.6) !important; /* Яркая световая фаска сверху */
+    border-bottom: 4px solid #4a3ca6 !important;               /* Толстый 3D-низ плашки */
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.55), 
+                0 0 20px rgba(159, 146, 236, 0.5) !important;   /* Мощный neoновый ореол вокруг */
+    border-radius: 12px !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+    transition: all 0.15s ease !important;
+}
+
+/* ===================================================================== */
+/* 👑 2. ЗОЛОТЫЕ 3D-СЛИТКИ ДЕЙСТВИЯ (Все кнопки расчетов по всему боту)  */
+/* ===================================================================== */
+.main-gold-btn {
+    width: 100% !important;
+    height: 50px !important; /* Увеличили высоту, чтобы тексту было свободно */
+    padding: 0 16px !important; /* Дали простор тексту по бокам */
+    box-sizing: border-box !important; /* Правильно считаем высоту вместе с 3D-гранью */
+    background: linear-gradient(180deg, #e2c275 0%, #b3934b 100%) !important;
+    color: #121019 !important;
+    font-weight: bold !important;
+    font-size: 15px !important;
+    border: 1px solid rgba(226, 194, 117, 0.4) !important;
+    border-top: 2.5px solid rgba(255, 255, 255, 0.7) !important; /* Блик сверху */
+    border-bottom: 4.5px solid rgba(90, 70, 25, 0.95) !important; /* Наш сочный 3D-низ */
+    box-shadow: 0 7px 16px rgba(0, 0, 0, 0.65), 0 0 22px rgba(226, 194, 117, 0.25) !important; /* Золотой ореол */
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Эффект физического вдавливания золотого слитка строго ПРИ НАЖАТИИ */
+.main-gold-btn:active {
+    transform: scale(0.97) translateY(2px) !important;
+    border-bottom-width: 1.5px !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* --------------------------------------------------------------------- */
+/* 📐 3. ПРЕМИАЛЬНЫЙ ОБЪЕМ ВЕРХНИХ НАВИГАЦИОННЫХ СУБВКЛАДОК              */
+/* --------------------------------------------------------------------- */
+.sub-tab-btn {
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-bottom: 2.5px solid rgba(0, 0, 0, 0.6) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+    transition: all 0.15s ease !important;
+}
+.sub-tab-btn.active {
+    border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 15px rgba(108, 92, 231, 0.45), 
+                0 4px 10px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ===================================================================== */
+/* 💥 ТОТАЛЬНОЕ ВЫЖИГАНИЕ ПЛОСКОСТИ ДЛЯ ВСЕХ ОСТАВШИХСЯ КНОПОК          */
+/* ===================================================================== */
+
+/* 1. Жестко врубаем 3D-объем для золотых слитков расчетов (Лунный день, Планетарный час, Биоритмы, Талисманы) */
+button[onclick*="biorhythm"],
+button[onclick*="Biorhythm"],
+button[onclick*="advice"],
+button[onclick*="Advice"],
+button[onclick*="talisman"],
+button[onclick*="Talisman"],
+button[onclick*="Calculate"],
+button[onclick*="calculate"],
+button[onclick*="Spread"],
+button[onclick*="Runes"],
+.taro-btn {
+    border: 1px solid rgba(226, 194, 117, 0.4) !important;
+    border-top: 2.5px solid rgba(255, 255, 255, 0.7) !important; /* Яркая фаска */
+    border-bottom: 4.5px solid rgba(90, 70, 25, 0.95) !important; /* Толстый низ */
+    box-shadow: 0 7px 16px rgba(0, 0, 0, 0.65), 
+                0 0 22px rgba(226, 194, 117, 0.25) !important;  /* Золотой ореол */
+    display: inline-block !important;
+}
+
+/* 2. Жестко врубаем 3D-объем для лавандовых кнопок Интерактива (По знаку, По целям, Высшая алхимия) */
+#screen-interactive .stone-levels-nav button,
+.interactive-tab-btn,
+button[onclick*="Tab"] {
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.6) !important;
+    border-bottom: 4px solid #4a3ca6 !important;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.55), 
+                0 0 20px rgba(159, 146, 236, 0.5) !important; /* Лавандовый ореол */
+}
+
+/* Делаем все блоки с кнопками раскладов гибкими */
+.taro-spreads-grid, 
+.runes-spreads-grid,
+.advice-mode-tabs {
+    display: flex !important;
+    flex-wrap: wrap !important; /* Разрешаем перенос, если экран узкий */
+    gap: 8px !important; /* Одинаковое расстояние между кнопками */
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Настраиваем сами кнопки внутри этих блоков */
+.taro-spreads-grid button,
+.runes-spreads-grid button,
+.advice-mode-tabs button {
+    flex: 1 1 calc(33.333% - 8px) !important; /* На ПК они встанут ровно по 3 в ряд */
+    min-width: 85px !important; /* Защита от сильного сжатия на смартфонах */
+    margin: 0 !important;
+    padding: 10px 4px !important;
+    font-size: 13px !important;
+    text-align: center !important;
+}
+
+/* ===================================================================== */
+/* 🧭 ГЛОБАЛЬНЫЕ СТИЛИ ИНЕРЦИОННЫХ ЛЕНТ ДЛЯ ВСЕХ СУБВКЛАДОК БОТА          */
+/* ===================================================================== */
+.sub-tab-wrapper {
+    width: 100% !important;
+    overflow-x: auto !important; /* Включаем мягкий скролл пальцем */
+    scroll-behavior: smooth !important; /* Делаем движение плавным */
+    -webkit-overflow-scrolling: touch !important; /* Плавная инерция на смартфонах */
+}
+
+.sub-tab-nav {
+    display: flex !important;
+    flex-wrap: nowrap !important; /* Категорически запрещаем кнопкам переноситься вниз */
+    gap: 8px !important;
+    width: max-content !important; /* Растягиваем ленту во всю длину кнопок */
+    padding: 4px 16px !important; /* Запас по бокам, чтобы крайние кнопки не липли */
+}
+
+.sub-tab-btn {
+    flex-shrink: 0 !important; /* Запрещаем браузеру уродливо сжимать кнопки по ширине */
+    white-space: nowrap !important; /* Запрещаем тексту внутри кнопок рваться */
+}
+
+/* Полностью вырезаем полосу прокрутки, оставляя чистый визуал */
+.sub-tab-wrapper::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* ===================================================================== */
+/* 📜 ТОТАЛЬНОЕ УНИЧТОЖЕНИЕ ПРОПИСИ ДЛЯ ВСЕХ РЕЗУЛЬТАТОВ РАССЧЕТОВ       */
+/* ===================================================================== */
+
+/* Находим абсолютно все блоки результатов, вывода текстов и ответов сервера */
+#magic-bottom-sheet p,
+#magic-bottom-sheet div,
+.magic-scroll-overlay p,
+.magic-scroll-overlay div,
+#sheet-text,
+[id*="output"] p,
+[id*="result"] p,
+[id*="text"] p,
+.tool-description-card p,
+.result-card p,
+.response-text {
+    font-family: 'Philosopher', 'Lora', 'Georgia', serif !important; /* Наш благородный академический шрифт */
+    font-size: 16px !important; /* Идеальный размер для чтения */
+    line-height: 1.6 !important; /* Даем простор строкам */
+    color: #e4e6eb !important; /* Мягкий светлый оттенок */
+    font-style: normal !important; /* Принудительно отключаем наклон рукописного текста */
+    letter-spacing: 0.3px !important;
+    text-align: left !important;
+}
+
+/* Красиво подсвечиваем жирные акценты и важные мысли мягким золотом */
+[id*="output"] b, [id*="output"] strong,
+[id*="result"] b, [id*="result"] strong,
+#magic-bottom-sheet b, #magic-bottom-sheet strong {
+    color: #e2c275 !important;
+    font-weight: bold !important;
+}
+
+/* ===================================================================== */
+/* 📜 ЦАРСТВЕННЫЙ ШРИФТ ДЛЯ ВСЕХ ЭЛЕМЕНТОВ ВНУТРИ МАНУСКРИПТА            */
+/* ===================================================================== */
+#magic-bottom-sheet *, 
+.magic-scroll-overlay *,
+#sheet-text,
+#sheet-text * {
+    font-family: 'Philosopher', 'Lora', 'Georgia', serif !important; /* Выжигаем пропись под корень! */
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+    color: #e4e6eb !important;
+    font-style: normal !important;
+    letter-spacing: 0.3px !important;
+}
+
+/* Красивое золото для важных акцентов */
+#magic-bottom-sheet strong, 
+#magic-bottom-sheet b,
+#sheet-text strong,
+#sheet-text b {
+    color: #e2c275 !important;
+    font-weight: bold !important;
+}
+
+/* ===================================================================== */
+/* 💎 ПРЕМИАЛЬНЫЙ ТЕМНО-ЗОЛОТОЙ СТИЛЬ ДЛЯ ВЫПАДАЮЩИХ СПИСКОВ (СЕЛЕКТОВ)  */
+/* ===================================================================== */
+
+/* Настраиваем абсолютно все выпадающие списки по всему приложению */
+select, 
+#zodiac-forecast-gender, 
+#bio-gender, 
+#adv-zodiac, 
+#adv-gender, 
+#rune-gender, 
+#stone-gender, 
+#stone-sign {
+    width: 100% !important;
+    height: 42px !important;
+    padding: 0 36px 0 16px !important; /* Чуть увеличили отступ слева для овального дизайна */
+    background: #0d0a14 !important; /* Наш фирменный глубокий полуночный фон */
+    color: #f3e8ff !important; /* Мягкий светлый текст */
+    border: 1px solid rgba(226, 194, 117, 0.25) !important; /* Изящное золото */
+    
+    /* 🛠️ ВОТ ОHО: Делаем плашки сочными, округлыми и овальными, как в Астропроцессоре! */
+    border-radius: 20px !important; 
+    
+    outline: none !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    transition: all 0.25s ease !important;
+    
+    /* 🔥 ЖЕСТКОЕ ВЫЖИГАНИЕ СИСТЕМНОГО ДИЗАЙНА (Спасет округлость на iPhone и Андроидах!) */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    
+    /* Наша кастомная изящная золотая стрелочка-треугольник */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e2c275' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 14px !important;
+}
+
+/* Красивое неоновое свечение рамки в момент, когда пользователь кликает на список */
+select:focus,
+#zodiac-forecast-gender:focus,
+#bio-gender:focus,
+#adv-zodiac:focus,
+#adv-gender:focus,
+#rune-gender:focus,
+#stone-gender:focus,
+#stone-sign:focus {
+    border-color: #e2c275 !important; /* Делаем рамку чистым золотом */
+    box-shadow: 0 0 12px rgba(226, 194, 117, 0.2) !important; /* Мягкий золотой ореол */
+}
+
+/* Настраиваем базовый благородный стиль строчек внутри выпадающих списков */
+select option,
+#zodiac-forecast-gender option,
+#bio-gender option,
+#adv-zodiac option,
+#adv-gender option,
+#rune-gender option,
+#stone-gender option,
+#stone-sign option {
+    background: #130f1c !important; /* Глубокий полуночный фон под цвет автокомплита */
+    color: #cbd5e1 !important; /* Мягкий светлый текст */
+    padding: 12px 16px !important; /* Даем воздуха пунктам */
+    font-family: 'Philosopher', sans-serif !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important; /* Плавный инерционный ход */
+}
+
+/* ✨ МАГИЧЕСКИЙ ХОВЕР ДЛЯ ОПЦИЙ: Пункт плавно сдвигается и вспыхивает астральным золотом! */
+select option:hover,
+select option:focus,
+select option:active,
+#zodiac-forecast-gender option:hover,
+#bio-gender option:hover,
+#adv-zodiac option:hover,
+#adv-gender option:hover,
+#rune-gender option:hover,
+#stone-gender option:hover,
+#stone-sign option:hover {
+    background: linear-gradient(90deg, rgba(159, 146, 236, 0.2) 0%, rgba(226, 194, 117, 0.05) 100%) !important; /* Лавандово-золотой перелив */
+    color: #e2c275 !important; /* Текст наливается чистым золотом */
+    padding-left: 22px !important; /* 🔥 ВОТ ОH: Тот самый интерактивный сдвиг вправо! */
+    text-shadow: 0 0 8px rgba(226, 194, 117, 0.5) !important; /* Мягкое неоновое сияние букв */
+}
+
+/* ===================================================================== */
+/* 🔮 ИДЕАЛЬНОЕ ЦЕНТРИРОВАНИЕ И РАСТЯЖКА ДЛЯ ЭКРАНОВ ОРАКУЛА             */
+/* ===================================================================== */
+
+/* Центрируем обертку Таро и Рун, чтобы справа не было пустоты */
+.taro-wrapper {
+    width: 100% !important;
+    max-width: 600px !important; /* Увеличиваем лимит, чтобы кнопкам было просторно */
+    margin: 0 auto !important;   /* Врубаем авто-центрирование по горизонтали! */
+    padding: 0 4px !important;   /* Легкий отступ от краев экрана смартфона */
+    box-sizing: border-box !important;
+}
+
+/* Настраиваем сетку кнопок раскладов, чтобы они занимали всю ширину симметрично */
+.taro-spreads-grid, 
+.runes-spreads-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important; /* Строго 3 равные колонки */
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 16px !important;
+    box-sizing: border-box !important;
+}
+
+/* Заставляем сами кнопки раскладов тянуться равномерно */
+.taro-spreads-grid .taro-spread-btn,
+.runes-spreads-grid .taro-spread-btn {
+    width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* ===================================================================== */
+/* 🌌 ТОТАЛЬНОЕ РАСШИРЕНИЕ СЕКЦИИ ОРАКУЛА НА ВСЮ ШИРИНУ ЭКРАНА           */
+/* ===================================================================== */
+
+/* Принудительно заставляем экран Оракула занять всю ширину приложения */
+#screen-oracle,
+.oracle-flat-screen {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Настраиваем внутренний контейнер, чтобы он аккуратно центрировал контент */
+.oracle-flat-screen .taro-wrapper {
+    width: 100% !important;
+    max-width: 500px !important; /* Оптимальная ширина для удобного тапа пальцем */
+    margin: 0 auto !important;   /* Железобетонное центрирование по центру */
+    padding: 0 16px !important;  /* Аккуратные отступы от краев смартфона */
+    box-sizing: border-box !important;
+}
+
+/* ===================================================================== */
+/* 📅 ПРЕМИАЛЬНЫЙ ТЁМНО-ЗОЛОТОЙ СТИЛЬ ДЛЯ ПОЛЕЙ ВВОДА ДАТЫ И ВРЕМЕНИ     */
+/* ===================================================================== */
+
+/* Стилизуем инпуты даты, времени, чисел и текста по всему боту */
+input[type="date"],
+input[type="time"],
+input[type="number"],
+input[type="text"].city-input {
+    width: 100% !important;
+    height: 42px !important;
+    padding: 0 12px !important;
+    background: #0d0a14 !important; /* Наш фирменный глубокий тёмный фон */
+    color: #f3e8ff !important; /* Чистый светлый текст */
+    border: 1px solid rgba(226, 194, 117, 0.25) !important; /* Изящное золото */
+    border-radius: 12px !important; /* Идеальные скругления углов */
+    outline: none !important;
+    font-size: 14px !important;
+    box-sizing: border-box !important;
+    transition: all 0.25s ease !important;
+    color-scheme: dark !important; /* Заставляем системные календари и часы браузера стать тёмными */
+}
+
+/* Красивое золотое свечение при клике в поле ввода */
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="number"]:focus,
+input[type="text"].city-input:focus {
+    border-color: #e2c275 !important;
+    box-shadow: 0 0 12px rgba(226, 194, 117, 0.2) !important;
+}
+
+/* Выравниваем иконки календарей и часов внутри полей, давая им аккуратный отступ */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    cursor: pointer !important;
+    filter: invert(85%) sepia(20%) saturate(1000%) hue-rotate(330deg) brightness(95%) contrast(90%) !important; /* Перекрашиваем стандартные иконки в мягкое благородное золото */
+    margin-right: 4px !important;
+    opacity: 0.8 !important;
+    transition: transform 0.2s ease !important;
+}
+
+/* Легкий интерактивный эффект при наведении на иконку */
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    transform: scale(1.1) !important;
+    opacity: 1 !important;
+}
+/* ===================================================================== */
+/* 🌌 ТОТАЛЬНОЕ ВЫРАВНИВАНИЕ И РАСШИРЕНИЕ ЭКРАНА ОРАКУЛА ДЛЯ ПК И ТВ     */
+/* ===================================================================== */
+
+/* Снимаем узкие тиски со всей секции Оракула целиком! */
+#screen-oracle,
+.oracle-flat-screen {
+    width: 100% !important;
+    max-width: 100% !important; /* Разрешаем растягиваться во всю ширину */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important; /* Намертво центрируем всё содержимое по центру! */
+    box-sizing: border-box !important;
+}
+
+/* Ограничиваем только внутренний контент, чтобы он не расползался шире 500px */
+#screen-oracle .sub-tab-wrapper,
+#screen-oracle .sub-tab-content,
+#screen-oracle .taro-wrapper {
+    width: 100% !important;
+    max-width: 500px !important; /* Премиальный размер для фокуса глаз */
+    margin: 0 auto !important;   /* Идеальная симметрия слева и справа */
+    box-sizing: border-box !important;
+}
+
+/* Настраиваем сетку кнопок раскладов, чтобы они сидели монолитно и ровно */
+.runes-spreads-grid,
+.taro-spreads-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important; /* Строго 3 равные колонки */
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 16px !important;
+    box-sizing: border-box !important;
+}
+
+/* ===================================================================== */
+/* 🌌 ЦАРСТВЕННАЯ АСТРАЛЬНАЯ ПАНЕЛЬ НАВИГАЦИИ (НИЖНЕЕ МЕНЮ)              */
+/* ===================================================================== */
+
+.bottom-nav {
+    background: linear-gradient(180deg, rgba(22, 18, 40, 0.97) 0%, rgba(9, 7, 16, 0.99) 100%) !important;
+    border-top: 1.5px solid rgba(226, 194, 117, 0.42) !important;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.85), 0 -2px 14px rgba(226, 194, 117, 0.14) !important;
+    height: 66px !important;
+    padding: 5px 4px !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    gap: 3px !important;
+}
+
+.bottom-nav .nav-btn {
+    background: rgba(255, 255, 255, 0.025) !important;
+    border: 1px solid rgba(167, 139, 250, 0.14) !important;
+    border-radius: 12px !important;
+    outline: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    height: 54px !important;
+    padding: 4px 2px !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-sizing: border-box !important;
+}
+
+.bottom-nav .nav-btn .nav-icon {
+    font-size: 19px !important;
+    line-height: 1.1 !important;
+    transition: transform 0.25s ease, filter 0.25s ease !important;
+    filter: grayscale(15%) opacity(0.92) drop-shadow(0 2px 4px rgba(0,0,0,0.6)) !important;
+}
+
+.bottom-nav .nav-btn .nav-label {
+    font-family: 'Philosopher', sans-serif !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+    font-weight: 600 !important;
+    color: #cbd5e1 !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.1px !important;
+    transition: color 0.25s ease, text-shadow 0.25s ease !important;
+}
+
+.bottom-nav .nav-btn.active {
+    background: linear-gradient(180deg, rgba(226, 194, 117, 0.2) 0%, rgba(167, 139, 250, 0.1) 100%) !important;
+    border-color: rgba(226, 194, 117, 0.55) !important;
+    box-shadow: 0 0 14px rgba(226, 194, 117, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+.bottom-nav .nav-btn.active .nav-icon {
+    transform: translateY(-1px) scale(1.08) !important;
+    filter: grayscale(0%) opacity(1) drop-shadow(0 0 8px rgba(226, 194, 117, 0.75)) !important;
+}
+
+.bottom-nav .nav-btn.active .nav-label {
+    color: #ffe066 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 8px rgba(226, 194, 117, 0.45) !important;
+}
+
+/* ===================================================================== */
+/* ✨ МАГИЧЕСКАЯ АКТИВАЦИЯ ВКЛАДКИ ПРИ НАЖАТИИ                           */
+/* ===================================================================== */
+.bottom-nav .nav-btn.active {
+    background: rgba(226, 194, 117, 0.03) !important; /* Едва заметный золотой блик под активной кнопкой */
+}
+
+/* Оживляем активную иконку — убираем фильтры и зажигаем золото */
+.bottom-nav .nav-btn.active .nav-icon {
+    transform: translateY(-3px) scale(1.1) !important;
+    filter: grayscale(0%) opacity(1) drop-shadow(0 0 8px rgba(226, 194, 117, 0.6)) !important;
+}
+
+/* Зажигаем активную текстовую подпись чистым золотом */
+.bottom-nav .nav-btn.active .nav-label {
+    color: #e2c275 !important; /* Наше благородное фирменное золото */
+    font-weight: 700 !important;
+    text-shadow: 0 0 8px rgba(226, 194, 117, 0.4) !important; /* Мягкий золотой ореол */
+}
+
+/* ===================================================================== */
+/* 🔮 ИДЕАЛЬНАЯ СИММЕТРИЯ И ЦЕНТРИРОВАНИЕ ДЛЯ СЕТКИ ЗНАКОВ ЗОДИАКА       */
+/* ===================================================================== */
+
+/* Намертво ловим главный контейнер карточек и заставляем его встать по центру */
+.zodiac-grid,
+#zodiac-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important; /* Строго 3 одинаковые колонки */
+    gap: 12px !important; /* Красивый мистический отступ между знаками */
+    width: 100% !important;
+    max-width: 500px !important; /* Фирменная ширина нашего гримуара */
+    margin: 0 auto !important;   /* ВОТ ОНО: ЖЕЛЕЗОБЕТОHHОЕ ЦЕНТРИРОВАНИЕ ПО ЦЕНТРУ! */
+    padding: 16px !important;
+    box-sizing: border-box !important;
+}
+
+/* На всякий случай подстрахуем обертку субвкладки гороскопа */
+#screen-horoscope .sub-tab-content {
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+}
+
+/* ===================================================================== */
+/* 🪐 МАКСИМАЛЬНЫЙ МАСШТАБ ДЛЯ КАРТИНОК WEBP СО ВСТРОЕННЫМ ТЕКСТОМ       */
+/* ===================================================================== */
+
+/* Полностью перестраиваем контейнер сетки знаков зодиака */
+.app-content .zodiac-grid,
+div.app-content #zodiac-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important; /* Строго 3 колонки */
+    gap: 12px !important; /* Отличный мистический отступ между кнопками */
+    width: 100% !important;
+    max-width: 440px !important; /* Делаем сетку просторнее */
+    height: auto !important; /* Никакого удушения по высоте vh, кнопки дышат свободно! */
+    margin: 0 auto !important; /* Идеальное центрирование по центру экрана */
+    padding: 10px 16px 20px 16px !important;
+    box-sizing: border-box !important;
+}
+
+/* Делаем кнопки (карточки) сочными ровными квадратами */
+.zodiac-grid .zodiac-card,
+.zodiac-grid .horoscope-card,
+#zodiac-grid .grid-item {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important; /* Строго идеальные квадраты */
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 4px !important; /* Даем абсолютный минимум паддинга, освобождая место для webp */
+    box-sizing: border-box !important;
+    border-radius: 16px !important; /* Премиальные закругленные углы */
+    background: #161224 !important;
+    border: 1px solid rgba(226, 194, 117, 0.2) !important; /* Золотая каемочка */
+    transition: all 0.2s ease !important;
+}
+
+/* 🚀 СИЛОВОЙ РАЗМАХ: КАРТИНКА ЗАНИМАЕТ ВСЮ КАРТОЧКУ БЕЗ ОГРАНИЧЕНИЙ ПОД ТЕКСТ */
+.zodiac-grid .zodiac-card img,
+.zodiac-grid .horoscope-card img,
+#zodiac-grid .grid-item img,
+.zodiac-card img,
+.horoscope-card img,
+.zodiac-icon {
+    width: 95% !important;  /* 🔥 Наращиваем силовой масштаб ширины до 80% от всей кнопки! */
+    height: 95% !important; /* 🔥 Наращиваем силовой масштаб высоты до 80% от всей кнопки! */
+    max-width: 85% !important;
+    max-height: 85% !important; /* Выжигаем старое 55% сжатие под текстовый воздух! */
+    
+    object-fit: contain !important; /* Идеальные пропорции без искажений и сплющивания */
+    display: block !important;
+    margin: 0 auto !important; /* Идеально центрируем webp картинку строго внутри коробки */
+}
+
+/* 🛡️ НАМЕРТВО УБИРАЕМ ЛЮБЫЕ ТЕКСТОВЫЕ ПОДПИСИ И СЛОВАРНЫЕ ДУБЛИКАТЫ ИЗ CSS */
+.zodiac-grid .zodiac-card::after,
+.zodiac-card::after {
+    display: none !important;
+    content: "" !important;
+}
+
+/* ===================================================================== */
+/* 🌌 ПРЕМИАЛЬНЫЙ МИСТИЧЕСКИЙ СТИЛЬ ДЛЯ АВТОКОМПЛИТА ГОРОДОВ              */
+/* ===================================================================== */
+
+/* Полностью перебиваем старый плоский контейнер выпадающего списка */
+.city-dropdown {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: linear-gradient(135deg, #130f1c 0%, #0d0a14 100%) !important; /* Глубокий благородный фон в цвет инпутов */
+    border: 1px solid rgba(226, 194, 117, 0.3) !important; /* Тонкая изящная золотая рамка */
+    border-radius: 12px !important; /* Премиальные скругленные углы, как у инпутов */
+    max-height: 200px !important; /* Оптимальная высота, чтобы не перекрывать весь экран */
+    overflow-y: auto !important; /* Включаем мягкий внутренний скролл */
+    z-index: 10000 !important; /* Абсолютный приоритет над другими элементами */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 
+                0 0 15px rgba(226, 194, 117, 0.08) !important; /* Мощная тень вниз и легкий золотой ореол */
+    margin-top: 4px !important;
+    padding: 4px 0 !important;
+    backdrop-filter: blur(10px) !important; /* Эффект матового стекла */
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Настраиваем стиль красивого тонкого скроллбара внутри списка городов */
+.city-dropdown::-webkit-scrollbar {
+    width: 5px !important;
+}
+.city-dropdown::-webkit-scrollbar-thumb {
+    background: rgba(226, 194, 117, 0.3) !important;
+    border-radius: 3px !important;
+}
+
+/* Стилизуем каждую отдельную строчку города в списке */
+.dropdown-item {
+    padding: 12px 16px !important; /* Добавили внутреннего воздуха для удобного тапа пальцем */
+    font-family: 'Philosopher', sans-serif !important;
+    font-size: 14px !important;
+    color: #cbd5e1 !important; /* Мягкий светлый печатный текст */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important; /* Едва заметная нить-разделитель */
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-align: left !important;
+}
+
+/* Убираем нижнюю черту у самого последнего города в списке */
+.dropdown-item:last-child {
+    border-bottom: none !important;
+}
+
+/* ✨ МАГИЧЕСКИЙ ХОВЕР И ТАП: Строчка эффектно вспыхивает лавандово-золотым неоном! */
+.dropdown-item:hover,
+.dropdown-item:active {
+    background: linear-gradient(90deg, rgba(159, 146, 236, 0.2) 0%, rgba(226, 194, 117, 0.05) 100%) !important; /* Мягкий перелив */
+    color: #e2c275 !important; /* Текст становится чистым золотом */
+    padding-left: 20px !important; /* Красивый динамический сдвиг текста вправо при наведении! */
+    text-shadow: 0 0 8px rgba(226, 194, 117, 0.4) !important;
+}
+
+/* ===================================================================== */
+/* 💎 УЛЬТИМАТИВНАЯ ОКРУГЛОСТЬ И ОВАЛЬНЫЙ ДИЗАЙН ДЛЯ ВСЕХ СЕЛЕКТОВ       */
+/* ===================================================================== */
+
+/* Силовой удар по геометрии закрытых плашек выпадающих списков */
+select, 
+#zodiac-forecast-gender, 
+#bio-gender, 
+#adv-zodiac, 
+#adv-gender, 
+#rune-gender, 
+#stone-gender, 
+#stone-sign {
+    /* 🛠️ ДЕЛАЕМ ИХ ИДЕАЛЬНО ОВАЛЬНЫМИ И ОКРУГЛЫМИ (Как в Астропроцессоре!) */
+    border-radius: 24px !important; 
+    
+    /* Добавляем внутренний отступ, чтобы текст внутри овала сидел красиво */
+    padding-left: 18px !important;
+    padding-right: 38px !important;
+    
+    /* Полное силовое выжигание стандартных квадратных рамок операционной системы */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    
+    /* Защита от наплыва внутренних системных теней */
+    box-shadow: none !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* Мягкое золотое неоновое свечение по всему овалу при клике */
+select:focus,
+#zodiac-forecast-gender:focus,
+#bio-gender:focus,
+#adv-zodiac:focus,
+#adv-gender:focus,
+#rune-gender:focus,
+#stone-gender:focus,
+#stone-sign:focus {
+    border-color: #e2c275 !important;
+    box-shadow: 0 0 14px rgba(226, 194, 117, 0.25) !important;
+}
+
+/* Делаем так, чтобы сам контейнер, куда падают точки, выстраивал их горизонтально */
+.ramli-dots-container {
+    display: flex !important;
+    flex-direction: row !important; /* Строго в один горизонтальный ряд! */
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 6px !important;            /* Расстояние между капсулами точек */
+    width: 100% !important;
+    margin-top: 5px !important;
+}
+
+/* Делаем сами капсулы аккуратными горизонтальными элементами */
+.ramli-dot-layer {
+    display: inline-block !important; /* Запрещаем им падать на новую строчку! */
+    color: #e2c275 !important;
+    font-size: 16px !important;      /* Хороший, читаемый размер точек */
+    font-weight: bold !important;
+    line-height: 1 !important;
+    text-shadow: 0 0 6px rgba(226, 194, 117, 0.5) !important;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(167, 139, 250, 0.15);
+    border-radius: 5px;
+    padding: 2px 6px !important;     /* Микро-рамка вокруг каждой линии геомантии */
+    text-align: center;
+}

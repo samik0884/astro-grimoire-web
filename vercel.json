@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://megoobmen.work.gd:8444/api/:path*"
+    },
+    {
+      "source": "/static/:path*",
+      "destination": "https://megoobmen.work.gd:8444/static/:path*"
+    }
+  ]
+}
