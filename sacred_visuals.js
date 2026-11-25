@@ -286,30 +286,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function playAdOrUnlock(chKey, badgeEl, onDone) {
         if (window.USER_AD_FREE || unlockedNatal[chKey]) {
-            unlockedNatal.chKey = true;
+            unlockedNatal[chKey] = true;
             onDone();
             return;
         }
-        const overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(9,7,16,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;';
-        overlay.innerHTML = '<div style="color:#ffe066;font-size:18px;font-weight:bold;margin-bottom:10px;">🎬 Сакральный Эфир Спонсора</div><p style="color:#cbd5e1;font-size:13.5px;">Свиток откроется через <b id="nat-ad-sec" style="color:#10b981;">3</b> сек...</p>';
-        document.body.appendChild(overlay);
-        let s = 3;
-        const t = setInterval(() => {
-            s -= 1;
-            const el = document.getElementById('nat-ad-sec');
-            if (el) el.innerText = String(Math.max(0, s));
-            if (s <= 0) {
-                clearInterval(t);
-                overlay.remove();
-                unlockedNatal[chKey] = true;
+        const finishUnlock = () => {
+            unlockedNatal[chKey] = true;
+            if (badgeEl && badgeEl.classList?.contains('nbadge')) {
                 badgeEl.innerText = 'ОТКРЫТО';
                 badgeEl.style.color = '#10b981';
                 badgeEl.style.borderColor = '#10b981';
-                onDone();
             }
-        }, 1000);
+            onDone();
+        };
+        if (window.GrimoireAds) {
+            window.GrimoireAds.showRewarded(finishUnlock);
+        } else {
+            finishUnlock();
+        }
     }
+
     function renderNatalThreeCards() {
         const decodeBtn = document.getElementById('natal-decode-btn');
         if (!decodeBtn || !lastNatalChapters) return;

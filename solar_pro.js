@@ -43,26 +43,20 @@ document.addEventListener('DOMContentLoaded', () => {
             onReady();
             return;
         }
-        const ov = document.createElement('div');
-        ov.style.cssText = 'position:fixed;inset:0;background:rgba(9,7,16,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;';
-        ov.innerHTML = '<div style="color:#ffe066;font-size:18px;font-weight:bold;margin-bottom:10px;">🎬 Сакральный Эфир Спонсора</div><p style="color:#cbd5e1;font-size:13.5px;">Глава Соляра откроется через <b id="sol-ad-sec" style="color:#10b981;">3</b> сек...</p>';
-        document.body.appendChild(ov);
-        let s = 3;
-        const t = setInterval(() => {
-            s -= 1;
-            const el = document.getElementById('sol-ad-sec');
-            if (el) el.innerText = String(Math.max(0, s));
-            if (s <= 0) {
-                clearInterval(t);
-                ov.remove();
-                window['solarUnlocked_' + key] = true;
-                badgeEl.innerText = 'ОТКРЫТО';
-                badgeEl.style.color = '#10b981';
-                badgeEl.style.borderColor = '#10b981';
-                onReady();
-            }
-        }, 1000);
+        const finish = () => {
+            window['solarUnlocked_' + key] = true;
+            badgeEl.innerText = 'ОТКРЫТО';
+            badgeEl.style.color = '#10b981';
+            badgeEl.style.borderColor = '#10b981';
+            onReady();
+        };
+        if (window.GrimoireAds) {
+            window.GrimoireAds.showRewarded(finish);
+        } else {
+            finish();
+        }
     }
+
     function buildSolarSvg(signs, yr) {
         return [
             '<svg viewBox="0 0 320 270" style="width:100%; max-width:320px; margin:0 auto; display:block;">',

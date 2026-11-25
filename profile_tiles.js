@@ -607,37 +607,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Обработчик кнопки «▶ Смотреть (0/3)» Ежедневного Ритуала
     const ritualBtn = shopBlock.querySelector('#watch-ad-ritual-btn');
     if (ritualBtn) {
-        ritualBtn.addEventListener('click', async () => {
-            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-            const userId = window.getGrimoireUserId();
-            ritualBtn.disabled = true;
-            ritualBtn.innerText = '⏳ Эфир...';
-
-            try {
-                const res = await fetch('/api/v1/user/ad-reward', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId })
-                });
-                const data = await res.json();
-                const statusEl = shopBlock.querySelector('#ad-ritual-status');
-                if (data.status === 'limit') {
-                    if (statusEl) statusEl.innerText = data.message;
-                    ritualBtn.innerText = '✅ Лимит (2/2 💎)';
-                    return;
-                }
-                if (data.rewarded) {
-                    if (statusEl) statusEl.innerHTML = '✨ <b>Ритуал завершён! Начислено +1 💎</b>';
-                    ritualBtn.innerText = '▶ Смотреть (0/3)';
-                    if (window.syncUserWallet) window.syncUserWallet();
-                } else {
-                    if (statusEl) statusEl.innerText = `Прогресс: ${data.progress} из 3 роликов до +1 💎`;
-                    ritualBtn.innerText = `▶ Смотреть (${data.progress}/3)`;
-                }
-            } catch (e) {}
-            ritualBtn.disabled = false;
+        ritualBtn.addEventListener('click', () => {
+            window.GrimoireAds.showRewarded(async () => {
+                const userId = window.getGrimoireUserId();
+                ritualBtn.disabled = true;
+                ritualBtn.innerText = '⏳ Эфир...';
+                try {
+                    const res = await fetch('/api/v1/user/ad-reward', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId })
+                    });
+                    const data = await res.json();
+                    const statusEl = shopBlock.querySelector('#ad-ritual-status');
+                    if (data.status === 'limit') {
+                        if (statusEl) statusEl.innerText = data.message;
+                        ritualBtn.innerText = '✅ Лимит (2/2 💎)';
+                        return;
+                    }
+                    if (data.rewarded) {
+                        if (statusEl) statusEl.innerHTML = '✨ <b>Ритуал завершён! Начислено +1 💎</b>';
+                        ritualBtn.innerText = '▶ Смотреть (0/3)';
+                        if (window.syncUserWallet) window.syncUserWallet();
+                    } else {
+                        if (statusEl) statusEl.innerText = `Прогресс: ${data.progress} из 3 роликов до +1 💎`;
+                        ritualBtn.innerText = `▶ Смотреть (${data.progress}/3)`;
+                    }
+                } catch (e) {}
+                ritualBtn.disabled = false;
+            });
         });
     }
+
 
 
 
