@@ -197,7 +197,8 @@
             dlBtn.className = 'main-gold-btn';
             dlBtn.textContent = '📲 Отправить обои в чат бота (1080×1920)';
             dlBtn.onclick = async () => {
-                const userId = window.getGrimoireUserId ? window.getGrimoireUserId() : 0;
+                const userId = (window.getGrimoireUserId ? window.getGrimoireUserId() : 0) || Number(window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 0);
+
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
 
                 if (userId > 0) {
