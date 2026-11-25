@@ -8,7 +8,7 @@ window.GrimoireAds = (function() {
 
     function getController() {
         if (!controller && window.Adsgram) {
-            controller = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+            controller = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID, debug: false });
         }
         return controller;
     }
@@ -80,4 +80,26 @@ document.addEventListener('DOMContentLoaded', () => {
     wrapWithAd('switchAdviceMode', 'luna');
     wrapWithAd('triggerMatrixPacket', 'base');
     wrapWithAd('triggerBaziPacket', 'base');
+});
+// Инициализация нижнего баннера Adsgram (task-61930) на вкладке «Мой День»
+document.addEventListener('DOMContentLoaded', () => {
+    const slot = document.getElementById('myday-bottom-ad-slot');
+    if (!slot) return;
+
+    const renderMyDayTaskBanner = () => {
+        if (window.USER_AD_FREE) {
+            slot.style.display = 'none';
+            return;
+        }
+        slot.innerHTML = '<adsgram-task data-block-id="task-61930" style="display:block;width:100%;"></adsgram-task>';
+        const taskEl = slot.querySelector('adsgram-task');
+        if (taskEl) {
+            taskEl.addEventListener('onError', () => {
+                // Если блок на модерации или нет офферов — аккуратно скрываем пустой слот
+                slot.style.display = 'none';
+            });
+        }
+    };
+
+    setTimeout(renderMyDayTaskBanner, 1200);
 });
