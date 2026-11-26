@@ -83,23 +83,29 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Инициализация нижнего баннера Adsgram (task-61930) на вкладке «Мой День»
 document.addEventListener('DOMContentLoaded', () => {
-    const slot = document.getElementById('myday-bottom-ad-slot');
-    if (!slot) return;
+    const mountMyDayBanner = () => {
+        const slot = document.getElementById('myday-bottom-ad-slot');
+        if (!slot || slot.dataset.adsMounted === '1') return;
 
-    const renderMyDayTaskBanner = () => {
         if (window.USER_AD_FREE) {
             slot.style.display = 'none';
             return;
         }
+
+        slot.dataset.adsMounted = '1';
+        slot.style.display = 'block';
         slot.innerHTML = '<adsgram-task data-block-id="task-61930" style="display:block;width:100%;"></adsgram-task>';
+
         const taskEl = slot.querySelector('adsgram-task');
         if (taskEl) {
-            taskEl.addEventListener('onError', () => {
-                // Если блок на модерации или нет офферов — аккуратно скрываем пустой слот
+            taskEl.addEventListener('onError', (e) => {
+                console.warn('Adsgram task-61930 error/moderation:', e);
                 slot.style.display = 'none';
             });
         }
     };
 
-    setTimeout(renderMyDayTaskBanner, 1200);
+    mountMyDayBanner();
+    const observer = new MutationObserver(() => mountMyDayBanner());
+    observer.observe(document.body, { childList: true, subtree: true });
 });
