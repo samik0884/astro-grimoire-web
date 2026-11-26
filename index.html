@@ -6,7 +6,7 @@
     <title>Astrology Web App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <link rel="stylesheet" href="css/style.css?v=11111">
+    <link rel="stylesheet" href="css/style.css?v=11112">
     <style>
 @import url('https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
@@ -1797,28 +1797,28 @@
             <span class="nav-label">Профиль</span>
         </button>
     </nav>
-    <script src="natal_graph.js?v=11111"></script>
-    <script src="grimoire_data.js?v=matrica11111"></script>
-    <script src="ad_manager.js?v=11111"></script>
-    <script src="main.js?v=11111"></script>
-    <script src="eastern.js?v=11111"></script>
-    <script src="synastry_pdf.js?v=11111"></script>
-    <script src="transits_pdf.js?v=11111"></script>
-    <script src="finance_pdf.js?v=11111"></script>
-    <script src="karma_pdf.js?v=11111"></script>
-    <script src="natal_pdf.js?v=11111"></script>
-    <script src="kids_pdf.js?v=11111"></script>
-    <script src="sacred_visuals.js?v=11111"></script>
-    <script src="daily_extras.js?v=11111"></script>
-    <script src="oracle_extras.js?v=11111"></script>
-    <script src="tile_menu.js?v=11111"></script>
-    <script src="share_cards.js?v=11111"></script>
-    <script src="profile_tiles.js?v=11111"></script>
-    <script src="sanctum_tools.js?v=11111"></script>
-    <script src="solar_pro.js?v=11111"></script>
-    <script src="pdf_paywall.js?v=11111"></script>
-    <script src="autofill.js?v=11111"></script>
-    <script src="oracle_seals.js?v=11111"></script>
+    <script src="natal_graph.js?v=11112"></script>
+    <script src="grimoire_data.js?v=matrica11112"></script>
+    <script src="ad_manager.js?v=11112"></script>
+    <script src="main.js?v=11112"></script>
+    <script src="eastern.js?v=11112"></script>
+    <script src="synastry_pdf.js?v=11112"></script>
+    <script src="transits_pdf.js?v=11112"></script>
+    <script src="finance_pdf.js?v=11112"></script>
+    <script src="karma_pdf.js?v=11112"></script>
+    <script src="natal_pdf.js?v=11112"></script>
+    <script src="kids_pdf.js?v=11112"></script>
+    <script src="sacred_visuals.js?v=11112"></script>
+    <script src="daily_extras.js?v=11112"></script>
+    <script src="oracle_extras.js?v=11112"></script>
+    <script src="tile_menu.js?v=11112"></script>
+    <script src="share_cards.js?v=11112"></script>
+    <script src="profile_tiles.js?v=11112"></script>
+    <script src="sanctum_tools.js?v=11112"></script>
+    <script src="solar_pro.js?v=11112"></script>
+    <script src="pdf_paywall.js?v=11112"></script>
+    <script src="autofill.js?v=11112"></script>
+    <script src="oracle_seals.js?v=11112"></script>
 
     
 
@@ -2022,6 +2022,30 @@ document.addEventListener('click', (e) => {
         sheet.style.display = 'flex';
     };
 })();
+
+</script>
+<!-- Плашка-мостик для посетителей из обычного браузера (Pinterest / Shorts) -->
+<div id="web-tg-banner" style="display: none; position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); width: calc(100% - 24px); max-width: 480px; background: linear-gradient(135deg, #1b1829 0%, #26203a 100%); border: 1px solid rgba(226, 194, 117, 0.45); border-radius: 14px; padding: 11px 14px; z-index: 9998; box-shadow: 0 8px 24px rgba(0,0,0,0.7); color: #f3e8ff; font-family: 'Philosopher', sans-serif;">
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+    <div style="font-size: 12.5px !important; line-height: 1.3 !important;">
+      <strong style="color: #ffe066; display: block; font-size: 13px !important;">✨ Полная версия в Telegram</strong>
+      Ежедневные прогнозы и PDF-свитки в боте
+    </div>
+    <div style="display: flex; gap: 6px; flex-shrink: 0;">
+      <a href="https://t.me/yznaigoroskop_bot?start=pinterest" target="_blank" style="background: linear-gradient(135deg, #e2c275, #b89343); color: #090710; font-weight: 700; font-size: 12px !important; padding: 7px 11px; border-radius: 10px; text-decoration: none; white-space: nowrap;">В бот →</a>
+      <a href="https://t.me/yznaigoroskop_canal" target="_blank" style="background: rgba(255,255,255,0.08); color: #e2c275; border: 1px solid rgba(226,194,117,0.35); font-size: 12px !important; padding: 7px 10px; border-radius: 10px; text-decoration: none; white-space: nowrap;">Канал</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const isTg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData;
+    if (!isTg) {
+      const banner = document.getElementById('web-tg-banner');
+      if (banner) banner.style.display = 'block';
+    }
+  })();
 </script>
 
 </body>
